@@ -14,6 +14,9 @@ package com.iih5.smartorm.model;
  * License for the specific language governing permissions and limitations
  * under the License.
  */
+import com.iih5.smartorm.dialect.DefaultDialect;
+import com.iih5.smartorm.kit.SpringKit;
+import com.iih5.smartorm.kit.StringKit;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -21,6 +24,7 @@ import java.lang.reflect.Field;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +45,7 @@ public class DbExecutor {
         DbExecutor executor =map.get(jdbcBeanId);
         if (executor==null){
             executor=new DbExecutor();
-            executor.jdbc=SpringContext.getInstace().getBean(jdbcBeanId);
+            executor.jdbc= SpringKit.getBean(jdbcBeanId);
             map.put(jdbcBeanId,executor);
         }
         return executor;
@@ -51,12 +55,12 @@ public class DbExecutor {
      * @return 返回JdbcTemplate
      */
     public static DbExecutor use() {
-        String[] dbs = SpringContext.getInstace().getCtx().getBeanNamesForType(JdbcTemplate.class);
+        String[] dbs = SpringKit.getApplicationContext().getBeanNamesForType(JdbcTemplate.class);
         DbExecutor executor=null;
         if (dbs != null && dbs.length > 0) {
             defaultJdbcBeanName = dbs[0];
             executor =new DbExecutor();
-            executor.jdbc=SpringContext.getInstace().getBean(defaultJdbcBeanName);
+            executor.jdbc= SpringKit.getBean(defaultJdbcBeanName);
             map.put(defaultJdbcBeanName,executor);
         }
         return  executor;
@@ -244,8 +248,38 @@ public class DbExecutor {
         return jdbc.batchUpdate(sql, batchArgs);
     }
 
+    /**
+     * 分页查询
+     * @param model
+     * @param pageNumber 第几页
+     * @param pageSize 每一页的大小
+     * @param sql 查询语句 (不能带limit,系统会自动带上)
+     * @param paras 查询参数
+     * @return the Page object
+     */
+    public  <T> Page<T> paginate(final  Class<T> model,int pageNumber, int pageSize, String sql,Object[] paras) throws Exception {
+        String tableName = StringKit.toTableNameByModel(model);
+        String countSQL= DefaultDialect.getDialect().forModelFindBy(tableName,"count(*)","");
+        long size= findBasicObject(countSQL,Long.class);
+        long totalRow=size;
+        if (totalRow == 0) {
+            return new Page<T>(new ArrayList<T>(0), pageNumber, pageSize, 0, 0);
+        }
+        int totalPage = (int) (totalRow / pageSize);
+        if (totalRow % pageSize != 0) {
+            totalPage++;
+        }
+        if (pageNumber > totalPage) {
+            return new Page<T>(new ArrayList<T>(0), pageNumber, pageSize, totalPage, (int)totalRow);
+        }
 
-
+        int offset = pageSize * (pageNumber - 1);
+        StringBuilder ssql = new StringBuilder();
+        ssql.append(sql).append(" ");
+        ssql.append(" limit ").append(offset).append(", ").append(pageSize);
+        List<T> list = findList(ssql.toString(),paras,model);
+        return new Page<T>(list, pageNumber, pageSize, totalPage, (int)totalRow);
+    }
 }
 
 

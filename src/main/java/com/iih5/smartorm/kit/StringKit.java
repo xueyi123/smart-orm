@@ -16,10 +16,12 @@
 
 package com.iih5.smartorm.kit;
 
+import com.iih5.smartorm.model.Db;
+
 /**
- * StrKit.
+ * StringKit.
  */
-public class StrKit {
+public class StringKit {
 	
 	/**
 	 * 首字母变小写
@@ -166,6 +168,20 @@ public class StrKit {
 		}
 		return sb.toString();
 	}
+
+	/**
+	 * 根据Model获取对应的表名
+	 * @param model
+	 * @param <T>
+     * @return 返回表名
+     */
+	public static <T> String toTableNameByModel(Class<T> model){
+		String simpleName = model.getSimpleName();
+		simpleName = simpleName.replace("Model", "");
+		simpleName = StringKit.toUnderscoreName(simpleName);
+		return Db.getDbNamePrefix() + simpleName;
+	}
+
 }
 
 

@@ -184,5 +184,16 @@ public class Db {
     public static int[] batchUpdate(String sql, List<Object[]> batchArgs) {
         return defaultExecutor.batchUpdate(sql,batchArgs);
     }
-
+    /**
+     * 分页查询
+     * @param model
+     * @param pageNumber 第几页
+     * @param pageSize 每一页的大小
+     * @param sql 查询语句
+     * @param paras 查询参数
+     * @return the Page object
+     */
+    public  static <T> Page<T> paginate(final Class<T> model,int pageNumber, int pageSize, String sql,Object[] paras) throws Exception {
+        return  defaultExecutor.paginate(model,pageNumber,pageSize,sql,paras);
+    }
 }

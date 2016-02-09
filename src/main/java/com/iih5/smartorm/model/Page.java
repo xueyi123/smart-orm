@@ -1,20 +1,21 @@
-/**
- * Copyright (c) 2011-2016, James Zhan 詹波 (jfinal@126.com).
+package com.iih5.smartorm.model;
+/*
+ * Copyright 2016 xueyi (1581249005@qq.com)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * The SmartORM Project licenses this file to you under the Apache License,
+ * version 2.0 (the "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at:
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
  */
 
-package com.iih5.smartorm.model;
+import com.alibaba.fastjson.JSON;
 
 import java.io.Serializable;
 import java.util.List;
@@ -26,11 +27,11 @@ public class Page<T> implements Serializable {
 	
 	private static final long serialVersionUID = -5395997221963176643L;
 
-	private List<T> list;				// list result of this page
-	private int pageNumber;				// page number
-	private int pageSize;				// result amount of this page
-	private int totalPage;				// total page
-	private int totalRow;				// total row
+	private List<T> list;				// 查询结果列表
+	private int pageNumber;			// 第几页
+	private int pageSize;				// 每一页的大小
+	private int totalPage;			// 总共有几页
+	private int totalRow;				// 总共有几行
 
 	/**
 	 * Constructor.
@@ -89,6 +90,14 @@ public class Page<T> implements Serializable {
 
 	public boolean isLastPage() {
 		return pageNumber == totalPage;
+	}
+
+	/**
+	 * 转换为json字符串
+	 * @return json str
+	 */
+	public String toString() {
+		return JSON.toJSONString(this);
 	}
 }
 

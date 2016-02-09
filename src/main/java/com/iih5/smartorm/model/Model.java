@@ -17,7 +17,7 @@ package com.iih5.smartorm.model;
 
 import com.alibaba.fastjson.JSON;
 import com.iih5.smartorm.dialect.DefaultDialect;
-import com.iih5.smartorm.kit.StrKit;
+import com.iih5.smartorm.kit.StringKit;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
@@ -37,10 +37,7 @@ public abstract class Model<M extends Model> implements Serializable {
     private Set<String> modifyFlag = new HashSet<String>();
     private Object[] NULL_PARA_ARRAY = new Object[]{};
     public Model() {
-        String simpleName = this.getClass().getSimpleName();
-        simpleName = simpleName.replace("Model", "");
-        simpleName = StrKit.toUnderscoreName(simpleName);
-        this.table = Db.getDbNamePrefix() + simpleName;
+        this.table =  StringKit.toTableNameByModel(this.getClass());
         this.jdbc = getJdbc();
     }
 
@@ -351,6 +348,20 @@ public abstract class Model<M extends Model> implements Serializable {
     public  <T> List<T> findBasicObjectList(String sql, Class<T> classType) {
         return Db.findBasicObjectList(sql,classType);
     }
+    /**
+     * 分页查询
+     * @param model
+     * @param pageNumber 第几页
+     * @param pageSize 每一页的大小
+     * @param sql 查询语句 (不能带limit,系统会自动带上)
+     * @param paras 查询参数
+     * @return the Page object
+     */
+    public  <T> Page<T> paginate(final  Class<T> model,int pageNumber, int pageSize, String sql,Object[] paras) throws Exception {
+        return Db.paginate(model,pageNumber,pageSize,sql,paras);
+    }
+
+
 
     public boolean equals(Object o) {
         if (!(o instanceof Model))

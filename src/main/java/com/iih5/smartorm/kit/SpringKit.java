@@ -1,4 +1,4 @@
-package com.iih5.smartorm.model;
+package com.iih5.smartorm.kit;
 /*
  * Copyright 2016 xueyi (1581249005@qq.com)
  *
@@ -14,32 +14,36 @@ package com.iih5.smartorm.model;
  * License for the specific language governing permissions and limitations
  * under the License.
  */
+
+import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-public class SpringContext {
-	private static SpringContext install =new SpringContext();
-	public static SpringContext getInstace() {
-		return install;
+/**
+ * 载入spring插件
+ */
+public class SpringKit implements ApplicationContextAware {
+	private static ApplicationContext appContext = null;
+	public static void init(String ... files) {
+		if (appContext==null){
+			appContext=  new ClassPathXmlApplicationContext(files);
+		}
+		return ;
 	}
-	
-	private ApplicationContext ctx = null;
-	private SpringContext() {
-		String path1="spring.xml";
-		this.ctx = new ClassPathXmlApplicationContext(new String[]{path1});
+	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+		appContext = applicationContext;
 	}
-
-	@SuppressWarnings("unchecked")
-	public <T> T getBean(String arg) {
-		return (T)this.ctx.getBean(arg);
+	public static ApplicationContext getApplicationContext() {
+		return appContext;
 	}
-	public <T> T getBean(Class<T> t) {
-		return (T)this.ctx.getBean(t);
-	}
-	public ApplicationContext getCtx() {
-		return this.ctx;
+	public static <T> T getBean(String arg) {
+		return (T)appContext.getBean(arg);
 	}
 	public static <T> T getTBean(Class<T> t) {	
-		return SpringContext.getInstace().getBean(t);
+		return appContext.getBean(t);
 	}
+
+
+
 }

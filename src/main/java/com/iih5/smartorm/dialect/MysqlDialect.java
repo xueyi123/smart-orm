@@ -20,7 +20,7 @@ import java.util.*;
 import java.util.Map.Entry;
 
 public class MysqlDialect implements Dialect {
-    public String forModelFindBy(String tableName,String columns,String[] pKeys) {
+    public String forModelFindBy(String tableName,String columns,String conditions) {
         StringBuilder sql = new StringBuilder("select ");
         columns = columns.trim();
         if ("*".equals(columns)) {
@@ -32,31 +32,29 @@ public class MysqlDialect implements Dialect {
                 if (i > 0) {
                     sql.append(",");
                 }
-                sql.append("`").append(arr[i].trim()).append("`");
+                sql.append(" ").append(arr[i].trim()).append(" ");
             }
         }
-        sql.append(" from `");
+        sql.append(" from ");
         sql.append(tableName);
-        sql.append("` where ");
-        for (int i=0; i<pKeys.length; i++) {
-            if (i > 0) {
-                sql.append(" and ");
-            }
-            sql.append("`").append(pKeys[i]).append("` = ?");
+        if (conditions==null || conditions.equals("")){
+            return  sql.toString();
         }
+        sql.append(" where ");
+        sql.append(conditions);
         return sql.toString();
     }
 
     public String deleteByCondition(String tableName,String conditions) {
         StringBuilder sql = new StringBuilder(45);
-        sql.append("delete from `");
+        sql.append("delete from ");
         sql.append(tableName);
-        sql.append("` where ");
+        sql.append(" where ");
         sql.append(conditions);
         return sql.toString();
     }
     public void forModelSave(String tableName, Map<String, Object> attrs, StringBuilder sql, List<Object> paras) {
-        sql.append("insert into `").append(tableName).append("`(");
+        sql.append("insert into ").append(tableName).append("(");
         StringBuilder temp = new StringBuilder(") values(");
         for (Entry<String, Object> e: attrs.entrySet()) {
             String colName = e.getKey();
@@ -65,7 +63,7 @@ public class MysqlDialect implements Dialect {
                 sql.append(", ");
                 temp.append(", ");
             }
-            sql.append("`").append(colName).append("`");
+            sql.append(" ").append(colName).append(" ");
             temp.append("?");
             paras.add(e.getValue());
         }
@@ -74,7 +72,7 @@ public class MysqlDialect implements Dialect {
 
     public void forModelUpdate(String tableName,String conditions, Map<String, Object> attrs, Set<String> modifyFlag, StringBuilder sql) {
         List<Object> paras= new ArrayList<Object>();
-        sql.append("update `").append(tableName).append("` set ");
+        sql.append("update ").append(tableName).append(" set ");
         for (Entry<String, Object> e : attrs.entrySet()) {
             String colName = e.getKey();
             if (modifyFlag.contains(colName)) {
@@ -82,9 +80,9 @@ public class MysqlDialect implements Dialect {
                     sql.append(", ");
                 }
                 if (e.getValue() instanceof String){
-                    sql.append("`").append(colName).append("` = '"+e.getValue()+"'");
+                    sql.append(" ").append(colName).append(" = '"+e.getValue()+"'");
                 }else {
-                    sql.append("`").append(colName).append("` = "+e.getValue());
+                    sql.append(" ").append(colName).append(" = "+e.getValue());
                 }
                 paras.add(colName);
             }

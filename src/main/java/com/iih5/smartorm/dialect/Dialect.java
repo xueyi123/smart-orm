@@ -23,16 +23,16 @@ public interface Dialect {
     /**
      * 构建查找sql
      * @param tableName
-     * @param columns
-     * @param pKeys
+     * @param columns 要查询的字段
+     * @param conditions ，执行条件 比如：conditions="userId=? and name=?"
      * @return  sql
      */
-    public String forModelFindBy(String tableName, String columns, String[] pKeys);
+    public String forModelFindBy(String tableName, String columns,String conditions);
 
     /**
      * 构建删除sql
      * @param tableName
-     * @param conditions 比如：conditions="userId=? and name=?"
+     * @param conditions 执行条件 比如：conditions="userId=? and name=?"
      * @return sql
      */
     public String deleteByCondition(String tableName, String conditions);
@@ -48,7 +48,7 @@ public interface Dialect {
     /**
      * 构建更改sql
      * @param tableName
-     * @param conditions 比如：conditions="userId=? and name=?"
+     * @param conditions 执行条件 比如：conditions="userId=? and name=?"
      * @param attrs
      * @param modifyFlag
      * @param sql
