@@ -7,14 +7,14 @@
 ##依赖于spring环境下
 ##工作方式
 ##1 基于Model操作数据库
-  ###1 UserModel user =new UserModel();
-  ###  user.coin=65800;
-  ###  user.nick_name="哈林";
-  ###  user.save();
-  ###2 VerifyCodeModel model = new VerifyCodeModel().find("select *from t_verify_code where id=13",VerifyCodeModel.class);
+###1 UserModel user =new UserModel();
+###  user.coin=65800;
+###  user.nick_name="哈林";
+###  user.save();
+###2 VerifyCodeModel model = new VerifyCodeModel().find("select *from t_verify_code where id=13",VerifyCodeModel.class);
 ##2 基于Db操作数据库
-  ###1 List<VerifyCodeModel> model= Db.findList("select *from t_verify_code",new Object[]{},VerifyCodeModel.class);
-  ###2 Page<VerifyCodeModel> modelPage= Db.use("JdbcBeanId").paginate(VerifyCodeModel.class,1,6,"select *from t_verify_code",new Object[]{});
+###1 List<VerifyCodeModel> model= Db.findList("select *from t_verify_code",new Object[]{},VerifyCodeModel.class);
+###2 Page<VerifyCodeModel> modelPage= Db.use("JdbcBeanId").paginate(VerifyCodeModel.class,1,6,"select *from t_verify_code",new Object[]{});
 ##代码强制规范
 ###1 编写Model模型时，必须继承Model类
 ###2 Model的字段属性必须设置为public
