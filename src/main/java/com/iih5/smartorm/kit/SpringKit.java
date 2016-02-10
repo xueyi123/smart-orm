@@ -28,12 +28,6 @@ import javax.sql.DataSource;
  */
 public class SpringKit implements ApplicationContextAware {
 	private static ApplicationContext appContext = null;
-	public static void init(ApplicationContext applicationContext) {
-		if (appContext==null){
-			appContext=  applicationContext;
-		}
-		return ;
-	}
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		appContext = applicationContext;
 	}
