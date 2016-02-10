@@ -1,8 +1,13 @@
 #SmartORM使用说明
 ##这是一个ORM模型组件，可快速实现SQL操作(目前只支持mysql)
 ##安装
-###1 application 环境下需要执行SpringKit.init("spring.xml");
-###2 web 环境下 需要在spring.xml 配置 <bean class="com.iih5.smartorm.kit.SpringKit"/>
+ 在spring.xml 配置
+ <bean class="com.iih5.smartorm.kit.SpringKit"/>
+ <bean id="db1" class="org.springframework.jdbc.core.JdbcTemplate">
+        <property name="dataSource">
+            <ref bean="dataSource"/> <!--dataSource bean id -->
+        </property>
+ </bean>
 ##依赖
 ##依赖于spring环境下
 ##工作方式
