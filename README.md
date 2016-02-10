@@ -3,11 +3,6 @@
 ##安装
  在spring.xml 配置
  <bean class="com.iih5.smartorm.kit.SpringKit"/>
- <bean id="db1" class="org.springframework.jdbc.core.JdbcTemplate">
-        <property name="dataSource">
-            <ref bean="dataSource"/> <!--dataSource bean id -->
-        </property>
- </bean>
 ##依赖
 ##依赖于spring环境下
 ##工作方式

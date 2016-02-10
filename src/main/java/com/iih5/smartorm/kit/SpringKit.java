@@ -15,10 +15,13 @@ package com.iih5.smartorm.kit;
  * under the License.
  */
 
+import com.mchange.v2.c3p0.ComboPooledDataSource;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.jdbc.core.JdbcTemplate;
+
+import javax.sql.DataSource;
 
 /**
  * 载入spring插件
@@ -37,13 +40,8 @@ public class SpringKit implements ApplicationContextAware {
 	public static ApplicationContext getApplicationContext() {
 		return appContext;
 	}
-	public static <T> T getBean(String arg) {
-		return (T)appContext.getBean(arg);
+	public static JdbcTemplate getJdbcTemplateByDataSource(String dataSourceName) {
+		ComboPooledDataSource dataSource= (ComboPooledDataSource)appContext.getBean(dataSourceName);
+		return  new JdbcTemplate(dataSource);
 	}
-	public static <T> T getTBean(Class<T> t) {	
-		return appContext.getBean(t);
-	}
-
-
-
 }

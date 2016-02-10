@@ -19,7 +19,7 @@ public class MainTest {
         System.out.println("hello world");
         System.out.println("hello world");
         ApplicationContext context= SpringContext.getInstace().getCtx();
-        SpringKit.init(context);
+     //   SpringKit.init(context);
 //        UserModel test =new UserModel();
 //        test.coin=8888;
 //        test.nick_name="哈哈哈";
@@ -50,6 +50,10 @@ public class MainTest {
 
         Page<VerifyCodeModel> modelPage= Db.paginate(VerifyCodeModel.class,1,6,"select *from t_verify_code",new Object[]{});
         System.out.println(modelPage.toString());
+
+        //String[] dbs = SpringKit.getApplicationContext().getBeanNamesForType(com.mchange.v2.c3p0.ComboPooledDataSource.class);
+       // System.out.println(JSON.toJSONString(dbs));
+
     }
 
 }

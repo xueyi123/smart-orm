@@ -34,13 +34,6 @@
         </property>
     </bean>
 
-    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
-        <property name="dataSource">
-            <ref bean="dataSource"/>
-        </property>
-    </bean>
-
-
     <bean id="dataSource_im" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
         <property name="driverClass">
             <value>${jdbc.driverClassName}</value>
@@ -56,12 +49,7 @@
         </property>
     </bean>
 
-    <bean id="jdbcTemplate_im" class="org.springframework.jdbc.core.JdbcTemplate">
-        <property name="dataSource">
-            <ref bean="dataSource_im"/>
-        </property>
-    </bean>
-
+    <bean class="com.iih5.smartorm.kit.SpringKit"/>
 </beans>
 
 

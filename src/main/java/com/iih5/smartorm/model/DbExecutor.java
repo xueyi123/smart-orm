@@ -17,6 +17,7 @@ package com.iih5.smartorm.model;
 import com.iih5.smartorm.dialect.DefaultDialect;
 import com.iih5.smartorm.kit.SpringKit;
 import com.iih5.smartorm.kit.StringKit;
+import com.mchange.v2.c3p0.ComboPooledDataSource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -33,46 +34,48 @@ import java.util.Map;
  */
 public class DbExecutor {
     private static Map<String, DbExecutor> map = new HashMap<String, DbExecutor>();
-    private static String defaultJdbcBeanName = "";
+    private static String defaultDataSource = null;
     private Object[] NULL_PARA_ARRAY = new Object[]{};
     public JdbcTemplate jdbc = null;
     /**
      * 选择使用数据库（默认选中第一个）
-     * @param jdbcBeanId 在spring.xml里配置的jdbc template beanId
-     * @return 返回JdbcTemplate
+     * @param dataSource 在spring.xml里配置的jdbc dataSource beanId
+     * @return 返回DbExecutor
      */
-    public static  DbExecutor use(String jdbcBeanId) {
-        DbExecutor executor =map.get(jdbcBeanId);
+    public static  DbExecutor use(String dataSource) {
+        DbExecutor executor =map.get(dataSource);
         if (executor==null){
             executor=new DbExecutor();
-            executor.jdbc= SpringKit.getBean(jdbcBeanId);
-            map.put(jdbcBeanId,executor);
+            executor.jdbc= SpringKit.getJdbcTemplateByDataSource(dataSource);
+            map.put(dataSource,executor);
         }
         return executor;
     }
     /**
-     * 默认返回第一个JdbcTemplate
-     * @return 返回JdbcTemplate
+     * 默认第一个dataSource
+     * @return DbExecutor
      */
     public static DbExecutor use() {
-        String[] dbs = SpringKit.getApplicationContext().getBeanNamesForType(JdbcTemplate.class);
-        DbExecutor executor=null;
-        if (dbs != null && dbs.length > 0) {
-            defaultJdbcBeanName = dbs[0];
+        if (defaultDataSource==null){
+            String[] dbs = SpringKit.getApplicationContext().getBeanNamesForType(ComboPooledDataSource.class);
+            defaultDataSource = dbs[0];
+        }
+        DbExecutor executor =map.get(defaultDataSource);
+        if (executor==null){
             executor =new DbExecutor();
-            executor.jdbc= SpringKit.getBean(defaultJdbcBeanName);
-            map.put(defaultJdbcBeanName,executor);
+            executor.jdbc= SpringKit.getJdbcTemplateByDataSource(defaultDataSource);
+            map.put(defaultDataSource,executor);
         }
         return  executor;
     }
 
     /**
      * 返回JdbcTemplate
-     * @param jdbcBeanId
+     * @param dataSource
      * @return
      */
-    public  JdbcTemplate getJdbcTemplate(String jdbcBeanId) {
-        DbExecutor executor =map.get(jdbcBeanId);
+    public  JdbcTemplate getJdbcTemplate(String dataSource) {
+        DbExecutor executor =map.get(dataSource);
         if (executor!=null){
             return executor.jdbc;
         }
@@ -84,7 +87,7 @@ public class DbExecutor {
      * @return
      */
     public  JdbcTemplate getJdbcTemplate() {
-        return  getJdbcTemplate(defaultJdbcBeanName);
+        return  getJdbcTemplate(defaultDataSource);
     }
 
     /**
