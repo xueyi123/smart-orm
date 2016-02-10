@@ -25,9 +25,9 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
  */
 public class SpringKit implements ApplicationContextAware {
 	private static ApplicationContext appContext = null;
-	public static void init(String ... files) {
+	public static void init(ApplicationContext applicationContext) {
 		if (appContext==null){
-			appContext=  new ClassPathXmlApplicationContext(files);
+			appContext=  applicationContext;
 		}
 		return ;
 	}

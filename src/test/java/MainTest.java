@@ -3,6 +3,7 @@ import com.iih5.smartorm.kit.SpringKit;
 import com.iih5.smartorm.model.Db;
 import com.iih5.smartorm.model.Model;
 import com.iih5.smartorm.model.Page;
+import org.springframework.context.ApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
@@ -17,7 +18,8 @@ public class MainTest {
     public static void main(String[] args) throws Exception {
         System.out.println("hello world");
         System.out.println("hello world");
-        SpringKit.init("spring.xml");
+        ApplicationContext context= SpringContext.getInstace().getCtx();
+        SpringKit.init(context);
 //        UserModel test =new UserModel();
 //        test.coin=8888;
 //        test.nick_name="哈哈哈";
