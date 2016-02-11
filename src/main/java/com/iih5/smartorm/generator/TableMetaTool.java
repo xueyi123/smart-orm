@@ -42,7 +42,25 @@ public class TableMetaTool {
         }
         return tableList;
     }
-
+    /**
+     * 从db获取库表和字段信息
+     * @param dbName
+     * @return
+     * @throws Exception
+     */
+    public static List<TableMeta> findTableMetaList(String dbName) throws Exception{
+        List<TableMeta> tableList = new ArrayList<TableMeta>();
+        Set<String> sets= new HashSet<String>();
+        String sql="select TABLE_NAME,DATA_TYPE,COLUMN_NAME,COLUMN_COMMENT from information_schema.columns where table_schema=? ";
+        List<MetaModel> list = Db.findList(sql,new Object[]{dbName}, MetaModel.class);
+        for (MetaModel gModel:list) {
+            sets.add(gModel.getStr("TABLE_NAME"));
+        }
+        for (String name:sets) {
+            tableList.add(toTableMeta(name,list));
+        }
+        return tableList;
+    }
     /**
      * 组合TableMeta
      * @param tableName

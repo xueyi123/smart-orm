@@ -71,7 +71,7 @@ public class ModelBuilder {
     public String  doBuild(TableMeta tableMeta,String packageName){
         createPackage(packageName);
         createImport("com.iih5.smartorm.model.Model");
-        createClass(StringKit.toModelNameByTable(tableMeta.name));
+        createClass(StringKit.toModelNameByTable(tableMeta.name)+"Model");
         for (ColumnMeta columnMeta:tableMeta.columnMetas) {
             String javaType= JavaType.getJavaTypeByDataType(columnMeta.dataType);
             if (javaType==null){
