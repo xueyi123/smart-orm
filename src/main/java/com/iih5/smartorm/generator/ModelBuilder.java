@@ -16,6 +16,8 @@ package com.iih5.smartorm.generator;/*
 
 import com.iih5.smartorm.kit.StringKit;
 
+import java.util.IllegalFormatException;
+
 public class ModelBuilder {
 
     private StringBuffer builder=null;
@@ -76,6 +78,9 @@ public class ModelBuilder {
             String javaType= JavaType.getJavaTypeByDataType(columnMeta.dataType);
             if (javaType==null){
                 throw new NullPointerException("找不到 "+columnMeta.dataType+"对应的JavaType");
+            }
+            if (JavaKeyword.contains(columnMeta.name)){
+                throw new IllegalArgumentException("非法参数名:"+columnMeta.name);
             }
             createColumn(javaType,columnMeta.name,columnMeta.comment);
         }

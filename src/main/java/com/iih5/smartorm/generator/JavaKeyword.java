@@ -26,7 +26,7 @@ import java.util.Set;
  */
 public class JavaKeyword {
 	
-	private String[] keywordArray = {
+	private static  String[] keywordArray = {
 		"abstract",
 		"assert",
 		"boolean",
@@ -79,16 +79,8 @@ public class JavaKeyword {
 		"while"
 	};
 	
-	private Set<String> set = initKeyword();
-	
-	public void addKeyword(String keyword) {
-		if (StringKit.notBlank(keyword)) {
-			set.add(keyword);
-
-		}
-	}
-	
-	private Set<String> initKeyword() {
+	private static  Set<String> set = initKeyword();
+	private static Set<String> initKeyword() {
 		HashSet<String> ret = new HashSet<String>();
 		for (String keyword : keywordArray) {
 			ret.add(keyword);
@@ -96,7 +88,7 @@ public class JavaKeyword {
 		return ret;
 	}
 	
-	public boolean contains(String str) {
+	public static boolean contains(String str) {
 		return set.contains(str);
 	}
 
