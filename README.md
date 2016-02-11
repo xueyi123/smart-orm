@@ -12,6 +12,9 @@
 ##2 基于Db操作数据库
 <br>1 List<VerifyCodeModel> model= Db.findList("select *from t_verify_code",new Object[]{},VerifyCodeModel.class);
 <br>2 Page<VerifyCodeModel> modelPage= Db.use("dataSource").paginate(VerifyCodeModel.class,1,6,"select *from t_verify_code",new Object[]{});
+##Model自定生成器
+<br> 参数说明：数据库名=packdb，包名=com.tthd.model.generator，java文件目录=D:/ideaProject/smartorm/src/main/java
+<br>ModelGenerator.generator("parkdb","com.tthd.model.generator","D:/ideaProject/smartorm/src/main/java");
 ##代码强制规范
 <br>1编写Model模型时，必须继承Model类
 <br>2 Model的字段属性必须设置为public
