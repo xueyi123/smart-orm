@@ -37,28 +37,23 @@ public class ModelGenerator {
      * 构造 Generator，Model文件，输出目录与包名与 Model相同
      *
      * @param modelPackageName model 包名
-     * @param modelOutputDir   model 输出目录
+     * @param javaOutputDir   java 输出目录
      */
-    public static  void  generator(TableMeta tableMeta, String modelPackageName, String modelOutputDir) throws IOException {
+    public static  void  generator(TableMeta tableMeta, String modelPackageName, String javaOutputDir) throws IOException {
         StringBuffer absoluteDir= new StringBuffer();
-        absoluteDir.append(modelOutputDir);
+        absoluteDir.append(javaOutputDir);
+        absoluteDir.append("/");
+        absoluteDir.append(modelPackageName.replaceAll("\\.","/"));
         ModelBuilder builder = new ModelBuilder();
-        String[] arr= modelPackageName.split(".");
-        for (String pack:arr) {
-            absoluteDir.append("/");
-            absoluteDir.append(pack);
-        }
-        String str = builder.doBuild(tableMeta, absoluteDir.toString());
-        writeToFile(str,tableMeta,modelOutputDir);
+        String str = builder.doBuild(tableMeta, modelPackageName);
+        writeToFile(str,tableMeta,absoluteDir.toString());
     }
     /**
      * 写入文件（如有重复，覆盖之前）
      */
     protected static void writeToFile(String content,TableMeta tableMeta,String outputDir) throws IOException {
         File dir = new File(outputDir);
-        if (!dir.exists())
-            dir.mkdirs();
-
+        dir.mkdirs();
         String target = outputDir + File.separator + StringKit.toModelNameByTable(tableMeta.name) + ".java";
         FileWriter fw = new FileWriter(target);
         try {
@@ -68,5 +63,4 @@ public class ModelGenerator {
             fw.close();
         }
     }
-
 }
