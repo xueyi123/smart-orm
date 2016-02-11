@@ -170,7 +170,7 @@ public class StringKit {
 	}
 
 	/**
-	 * 根据Model获取对应的表名
+	 * 根据Model返回对应的表名
 	 * @param model
 	 * @param <T>
      * @return 返回表名
@@ -182,6 +182,26 @@ public class StringKit {
 		return Db.getDbNamePrefix() + simpleName;
 	}
 
+	/**
+	 * 根据表名返回对应的Model名
+	 * @param tableName
+	 * @return
+     */
+	public static String toModelNameByTable(String tableName){
+		int index= tableName.indexOf("_");
+		tableName=tableName.substring(index);
+		return toCamelCaseName(tableName);
+	}
+
+	/**
+	 * 根据数据库表字段类型转换为对应的java类型
+	 * @param dataType
+	 * @return 返回java类型
+     */
+	public static String toJavaType(String dataType){
+
+		return null;
+	}
 }
 
 

@@ -1,4 +1,7 @@
 import com.alibaba.fastjson.JSON;
+import com.iih5.smartorm.generator.ColumnMetaTest;
+import com.iih5.smartorm.generator.GeneratorModel;
+import com.iih5.smartorm.generator.TableMetaTest;
 import com.iih5.smartorm.kit.SpringKit;
 import com.iih5.smartorm.model.Db;
 import com.iih5.smartorm.model.Model;
@@ -11,7 +14,9 @@ import javax.swing.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class MainTest {
 
@@ -41,19 +46,43 @@ public class MainTest {
        // VerifyCodeModel mmodel= new VerifyCodeModel();
        // mmodel.phone="120";
       //  mmodel.save();
-        List<Object[]> list = new ArrayList<Object[]>();
-        list.add(new Object[]{"99"});
-        list.add(new Object[]{"0000"});
        // Db.batchUpdate("insert into t_verify_code (phone,varCode) values(?,?)",list);
        // Db.update("delete from t_verify_code where varCode=?",new Object[]{"3905"});
        // Db.update("update t_verify_code set phone=?,varCode=? where id=?",new Object[]{"0000000","0000",24});
 
-        Page<VerifyCodeModel> modelPage= Db.paginate(VerifyCodeModel.class,1,6,"select *from t_verify_code",new Object[]{});
-        System.out.println(modelPage.toString());
+//        Page<VerifyCodeModel> modelPage= Db.paginate(VerifyCodeModel.class,1,6,"select *from t_verify_code",new Object[]{});
+//        System.out.println(modelPage.toString());
 
         //String[] dbs = SpringKit.getApplicationContext().getBeanNamesForType(com.mchange.v2.c3p0.ComboPooledDataSource.class);
        // System.out.println(JSON.toJSONString(dbs));
 
-    }
 
+        //----------
+        Set<String> sets= new HashSet<String>();
+        String sql="select TABLE_NAME,DATA_TYPE,COLUMN_NAME,COLUMN_COMMENT from information_schema.columns where table_schema='parkdb' ";
+        List<GeneratorModel> list = Db.use("dataSource").findList(sql,GeneratorModel.class);
+        for (GeneratorModel model:list) {
+            sets.add(model.getStr("TABLE_NAME"));
+
+        }
+        for (String name:sets) {
+            TableMetaTest metatest= getTableMeta(name,list);
+            System.out.println(JSON.toJSONString(metatest));
+        }
+
+    }
+    public  static TableMetaTest getTableMeta(String tableName, List<GeneratorModel> list){
+        TableMetaTest tableMeta=new TableMetaTest();
+        tableMeta.name=tableName;
+        for (GeneratorModel model:list) {
+            if (tableName.equals(model.getStr("TABLE_NAME"))){
+                ColumnMetaTest columnMeta= new ColumnMetaTest();
+                columnMeta.dataType=model.getStr("DATA_TYPE");
+                columnMeta.name=  model.getStr("COLUMN_NAME");
+                columnMeta.comment=model.getStr("COLUMN_COMMENT");
+                tableMeta.columnMetas.add(columnMeta);
+            }
+        }
+        return tableMeta;
+    }
 }
