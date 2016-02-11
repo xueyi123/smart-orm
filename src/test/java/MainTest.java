@@ -1,19 +1,8 @@
 import com.alibaba.fastjson.JSON;
-import com.iih5.smartorm.generator.ColumnMetaTest;
-import com.iih5.smartorm.generator.GeneratorModel;
-import com.iih5.smartorm.generator.TableMetaTest;
-import com.iih5.smartorm.kit.SpringKit;
+import com.iih5.smartorm.generator.*;
 import com.iih5.smartorm.model.Db;
-import com.iih5.smartorm.model.Model;
-import com.iih5.smartorm.model.Page;
 import org.springframework.context.ApplicationContext;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 
-import javax.swing.*;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -56,33 +45,11 @@ public class MainTest {
         //String[] dbs = SpringKit.getApplicationContext().getBeanNamesForType(com.mchange.v2.c3p0.ComboPooledDataSource.class);
        // System.out.println(JSON.toJSONString(dbs));
 
-
-        //----------
-        Set<String> sets= new HashSet<String>();
-        String sql="select TABLE_NAME,DATA_TYPE,COLUMN_NAME,COLUMN_COMMENT from information_schema.columns where table_schema='parkdb' ";
-        List<GeneratorModel> list = Db.use("dataSource").findList(sql,GeneratorModel.class);
-        for (GeneratorModel model:list) {
-            sets.add(model.getStr("TABLE_NAME"));
-
-        }
-        for (String name:sets) {
-            TableMetaTest metatest= getTableMeta(name,list);
-            System.out.println(JSON.toJSONString(metatest));
+        List<TableMeta> tableMetas= TableMetaTool.findTableMetaList("dataSource","parkdb");
+        for (TableMeta table:tableMetas) {
+            ModelGenerator.generator(table,"com.tthd.model.generator","D:/ideaProject/smartorm/src/main/java");
         }
 
     }
-    public  static TableMetaTest getTableMeta(String tableName, List<GeneratorModel> list){
-        TableMetaTest tableMeta=new TableMetaTest();
-        tableMeta.name=tableName;
-        for (GeneratorModel model:list) {
-            if (tableName.equals(model.getStr("TABLE_NAME"))){
-                ColumnMetaTest columnMeta= new ColumnMetaTest();
-                columnMeta.dataType=model.getStr("DATA_TYPE");
-                columnMeta.name=  model.getStr("COLUMN_NAME");
-                columnMeta.comment=model.getStr("COLUMN_COMMENT");
-                tableMeta.columnMetas.add(columnMeta);
-            }
-        }
-        return tableMeta;
-    }
+
 }

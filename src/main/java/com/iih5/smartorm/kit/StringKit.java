@@ -16,6 +16,7 @@
 
 package com.iih5.smartorm.kit;
 
+import com.iih5.smartorm.generator.JavaType;
 import com.iih5.smartorm.model.Db;
 
 /**
@@ -191,16 +192,6 @@ public class StringKit {
 		int index= tableName.indexOf("_");
 		tableName=tableName.substring(index);
 		return toCamelCaseName(tableName);
-	}
-
-	/**
-	 * 根据数据库表字段类型转换为对应的java类型
-	 * @param dataType
-	 * @return 返回java类型
-     */
-	public static String toJavaType(String dataType){
-
-		return null;
 	}
 }
 

@@ -14,10 +14,9 @@ package com.iih5.smartorm.generator;/*
  * under the License.
  */
 
-import java.util.ArrayList;
-import java.util.List;
+import com.iih5.smartorm.model.Model;
 
-public class TableMetaTest {
-    public String name;				// 表名
-    public List<ColumnMetaTest> columnMetas = new ArrayList<ColumnMetaTest>();	// 字段 meta
+public class MetaModel extends Model<MetaModel> {
+
+
 }

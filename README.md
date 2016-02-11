@@ -11,7 +11,7 @@
 <br>2 VerifyCodeModel model = new VerifyCodeModel().find("select *from t_verify_code where id=13",VerifyCodeModel.class);
 ##2 基于Db操作数据库
 <br>1 List<VerifyCodeModel> model= Db.findList("select *from t_verify_code",new Object[]{},VerifyCodeModel.class);
-<br>2 Page<VerifyCodeModel> modelPage= Db.use("JdbcBeanId").paginate(VerifyCodeModel.class,1,6,"select *from t_verify_code",new Object[]{});
+<br>2 Page<VerifyCodeModel> modelPage= Db.use("dataSource").paginate(VerifyCodeModel.class,1,6,"select *from t_verify_code",new Object[]{});
 ##代码强制规范
 <br>1编写Model模型时，必须继承Model类
 <br>2 Model的字段属性必须设置为public

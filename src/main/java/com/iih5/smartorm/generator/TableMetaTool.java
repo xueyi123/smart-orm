@@ -21,7 +21,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class TableMetaGenerator {
+public class TableMetaTool {
     /**
      * 从db获取库表和字段信息
      * @param dataSource
@@ -29,12 +29,12 @@ public class TableMetaGenerator {
      * @return
      * @throws Exception
      */
-    public List<TableMetaTest> findTableMetaList(String dataSource, String dbName) throws Exception{
-        List<TableMetaTest> tableList = new ArrayList<TableMetaTest>();
+    public static List<TableMeta> findTableMetaList(String dataSource, String dbName) throws Exception{
+        List<TableMeta> tableList = new ArrayList<TableMeta>();
         Set<String> sets= new HashSet<String>();
-        String sql="select TABLE_NAME,DATA_TYPE,COLUMN_NAME,COLUMN_COMMENT from information_schema.columns where table_schema='?' ";
-        List<GeneratorModel> list = Db.use(dataSource).findList(sql,new Object[]{dbName}, GeneratorModel.class);
-        for (GeneratorModel gModel:list) {
+        String sql="select TABLE_NAME,DATA_TYPE,COLUMN_NAME,COLUMN_COMMENT from information_schema.columns where table_schema=? ";
+        List<MetaModel> list = Db.use(dataSource).findList(sql,new Object[]{dbName}, MetaModel.class);
+        for (MetaModel gModel:list) {
             sets.add(gModel.getStr("TABLE_NAME"));
         }
         for (String name:sets) {
@@ -49,12 +49,12 @@ public class TableMetaGenerator {
      * @param list
      * @return
      */
-    private   TableMetaTest toTableMeta(String tableName, List<GeneratorModel> list){
-        TableMetaTest tableMeta=new TableMetaTest();
+    private static TableMeta toTableMeta(String tableName, List<MetaModel> list){
+        TableMeta tableMeta=new TableMeta();
         tableMeta.name=tableName;
-        for (GeneratorModel model:list) {
+        for (MetaModel model:list) {
             if (tableName.equals(model.getStr("TABLE_NAME"))){
-                ColumnMetaTest columnMeta= new ColumnMetaTest();
+                ColumnMeta columnMeta= new ColumnMeta();
                 columnMeta.dataType=model.getStr("DATA_TYPE");
                 columnMeta.name=  model.getStr("COLUMN_NAME");
                 columnMeta.comment=model.getStr("COLUMN_COMMENT");
