@@ -4,16 +4,41 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <packaging>jar</packaging>
-
     <groupId>com.iih5</groupId>
     <artifactId>smartorm</artifactId>
-    <version>1.0-SNAPSHOT</version>
+
+    <version>1.0</version>
+    <name>smartorm</name>
+    <description>这是一个ORM模型组件，可快速实现SQL操作(目前只支持mysql)</description>
+    <url>http://www.iih5.com/</url>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>xueyi</name>
+            <email>1581249005@qq.com</email>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:https://github.com/xueyi123/smartorm.git</connection>
+        <developerConnection>scm:git:https://github.com/xueyi123/smartorm.git</developerConnection>
+        <url>https://github.com/xueyi123/smartorm.git</url>
+    </scm>
+
 
     <dependencies>
+
         <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
-            <version>2.6</version>
+            <version>2.3</version>
         </dependency>
         <dependency>
             <groupId>commons-logging</groupId>
@@ -117,6 +142,105 @@
         </dependency>
 
     </dependencies>
+
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>oss</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>oss</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
+    <build>
+    <plugins>
+    <plugin>
+        <groupId>
+            org.apache.maven.plugins
+        </groupId>
+        <artifactId>
+            maven-source-plugin
+        </artifactId>
+        <version>2.2.1</version>
+        <executions>
+            <execution>
+                <id>attach-sources</id>
+                <goals>
+                    <goal>jar-no-fork</goal>
+                </goals>
+            </execution>
+        </executions>
+    </plugin>
+
+        <plugin>
+            <dependencies>
+                <dependency>
+                    <groupId>commons-lang</groupId>
+                    <artifactId>commons-lang</artifactId>
+                    <version>2.3</version>
+                </dependency>
+            </dependencies>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>2.9.1</version>
+            <configuration>
+                <aggregate>true</aggregate>
+            </configuration>
+            <executions>
+                <execution>
+                    <id>attach-javadoc</id>
+                    <goals>
+                        <goal>jar</goal>
+                    </goals>
+                </execution>
+            </executions>
+        </plugin>
+
+    <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-gpg-plugin</artifactId>
+        <version>1.5</version>
+        <executions>
+            <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals>
+                    <goal>sign</goal>
+                </goals>
+            </execution>
+        </executions>
+    </plugin>
+    </plugins>
+    </build>
+
+    <repositories>
+        <repository>
+            <id>central</id>
+            <name>Central Repository</name>
+            <url>http://repo.maven.apache.org/maven2</url>
+            <layout>default</layout>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>central</id>
+            <name>Central Repository</name>
+            <url>http://repo.maven.apache.org/maven2</url>
+            <layout>default</layout>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <updatePolicy>never</updatePolicy>
+            </releases>
+        </pluginRepository>
+    </pluginRepositories>
 
 
 </project>
