@@ -33,20 +33,20 @@ public class Db {
     }
     /**
      * 选择使用数据库（默认选中第一个）
-     * @param jdbcBeanId 在spring.xml里配置的jdbc template beanId
+     * @param dataSource 在spring.xml里配置的jdbc dataSource
      * @return
      */
-    public static  DbExecutor use(String jdbcBeanId){
-        return DbExecutor.use(jdbcBeanId);
+    public static  DbExecutor use(String dataSource){
+        return DbExecutor.use(dataSource);
     }
 
     /**
      * 获取配置的 JdbcTemplate
-     * @param jdbcBeanId
+     * @param dataSource
      * @return
      */
-    public static JdbcTemplate getJdbcTemplate(String jdbcBeanId){
-        return  use(jdbcBeanId).getJdbcTemplate();
+    public static JdbcTemplate getJdbcTemplate(String dataSource){
+        return  use(dataSource).getJdbcTemplate();
     }
 
     /**

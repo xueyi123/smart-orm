@@ -56,8 +56,8 @@ public abstract class Model<M extends Model> implements Serializable {
         return modifyFlag;
     }
 
-    public M use(String db) {
-        this.jdbc = Db.getJdbcTemplate(db);
+    public M use(String dataSource) {
+        this.jdbc = Db.getJdbcTemplate(dataSource);
         return (M) this;
     }
 

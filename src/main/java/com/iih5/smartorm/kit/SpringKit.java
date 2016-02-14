@@ -20,6 +20,8 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.jdbc.core.JdbcTemplate;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 
 import javax.sql.DataSource;
 
@@ -37,5 +39,8 @@ public class SpringKit implements ApplicationContextAware {
 	public static JdbcTemplate getJdbcTemplateByDataSource(String dataSourceName) {
 		ComboPooledDataSource dataSource= (ComboPooledDataSource)appContext.getBean(dataSourceName);
 		return  new JdbcTemplate(dataSource);
+	}
+	public static JedisPool getJedisPool(String jedisPool) {
+		return(JedisPool)appContext.getBean(jedisPool);
 	}
 }

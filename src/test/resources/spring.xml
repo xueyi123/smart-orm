@@ -9,8 +9,7 @@
 
     <context:component-scan base-package="com"></context:component-scan>
 
-    <bean id="placeholderConfig"
-          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+    <bean id="placeholderConfig" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
         <property name="locations">
             <list>
                <value>classpath:mysql.properties</value>
@@ -20,18 +19,10 @@
     </bean>
 
     <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
-        <property name="driverClass">
-            <value>${jdbc.driverClassName}</value>
-        </property>
-        <property name="jdbcUrl">
-            <value>${jdbc.url}</value>
-        </property>
-        <property name="user">
-            <value>${jdbc.username}</value>
-        </property>
-        <property name="password">
-            <value>${jdbc.password}</value>
-        </property>
+        <property name="driverClass"    value="${jdbc.driverClassName}" />
+        <property name="jdbcUrl"        value="${jdbc.url}" />
+        <property name="user"            value="${jdbc.username}" />
+        <property name="password"       value="${jdbc.password}" />
     </bean>
 
     <bean id="dataSource_im" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
@@ -50,6 +41,21 @@
     </bean>
 
     <bean class="com.iih5.smartorm.kit.SpringKit"/>
+
+
+    <bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig" />
+
+    <bean id = "jedisPool" class="redis.clients.jedis.JedisPool">
+        <constructor-arg index="0" ref="jedisPoolConfig"/>
+        <constructor-arg index="1" value="112.74.212.98"/>
+        <constructor-arg index="2" value="6380" type="int"/>
+        <constructor-arg index="3" value="0" type="int"/>
+        <constructor-arg index="4" value="pwdxxx"/>
+    </bean>
+
+
+
+
 </beans>
 
 
