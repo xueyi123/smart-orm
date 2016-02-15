@@ -25,5 +25,6 @@
 
 【1.0.1】 generator生成 生成器生成的Model 加入set get 方法 以及 serialVersion
 【1.0.1】 优化 Model 查询接口(接口参数也有所变动，注意更新)
+【1.0.1】 修改了一些Bug
 
 
