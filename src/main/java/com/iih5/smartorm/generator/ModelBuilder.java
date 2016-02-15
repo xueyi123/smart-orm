@@ -15,6 +15,7 @@ package com.iih5.smartorm.generator;/*
  */
 
 import com.iih5.smartorm.kit.StringKit;
+import com.iih5.smartorm.model.Model;
 
 import java.util.IllegalFormatException;
 
@@ -26,6 +27,8 @@ public class ModelBuilder {
     private StringBuffer classBuilder;
     private StringBuffer serialBuilder;
     private StringBuffer columnBuilder;
+    private StringBuffer setMethodBuilder;
+    private StringBuffer getMethodBuilder;
 
     public ModelBuilder(){
         builder = new StringBuffer();
@@ -34,6 +37,8 @@ public class ModelBuilder {
         importBuilder  = new StringBuffer();
         serialBuilder  = new StringBuffer();
         columnBuilder  = new StringBuffer();
+        setMethodBuilder=new StringBuffer();
+        getMethodBuilder=new StringBuffer();
     }
     private void  join(){
         builder.append(packageBuilder);
@@ -46,6 +51,9 @@ public class ModelBuilder {
         builder.append("\n");
         builder.append(columnBuilder);
         builder.append("\n");
+        builder.append(setMethodBuilder);
+        builder.append("\n");
+        builder.append(getMethodBuilder);
         builder.append("\n");
         builder.append("}\n");
     }
@@ -62,18 +70,33 @@ public class ModelBuilder {
         return (this);
     }
     private ModelBuilder createSerialVersion(){
-        serialBuilder.append("private static final long serialVersionUID = 1L;");
+        serialBuilder.append("    private static final long serialVersionUID = 1L;");
         return (this);
     }
     private ModelBuilder createColumn(String type, String column, String comment){
-        columnBuilder.append("//"+comment+"\n");
-        columnBuilder.append("public "+type+" "+column+";\n");
+        columnBuilder.append("    //"+comment+"\n");
+        columnBuilder.append("    public "+type+" "+column+";\n");
+        return (this);
+    }
+    private ModelBuilder createSetMethod(String type, String column){
+        setMethodBuilder.append("    public void set");
+        setMethodBuilder.append(StringKit.firstCharToUpperCase(StringKit.toCamelCaseName(column))+"("+type+" "+column+") { \n");
+        setMethodBuilder.append("        this."+column+" = "+column+"; \n");
+        setMethodBuilder.append("    }\n");
+        return (this);
+    }
+    private ModelBuilder createGetMethod(String type, String column){
+        setMethodBuilder.append("    public "+type+" "+"get");
+        setMethodBuilder.append(StringKit.firstCharToUpperCase(StringKit.toCamelCaseName(column))+"() { \n");
+        setMethodBuilder.append("        return "+column+";\n");
+        setMethodBuilder.append("    }\n");
         return (this);
     }
     public String  doBuild(TableMeta tableMeta,String packageName){
         createPackage(packageName);
         createImport("com.iih5.smartorm.model.Model");
         createClass(StringKit.toModelNameByTable(tableMeta.name)+"Model");
+        createSerialVersion();
         for (ColumnMeta columnMeta:tableMeta.columnMetas) {
             String javaType= JavaType.getJavaTypeByDataType(columnMeta.dataType);
             if (javaType==null){
@@ -83,6 +106,8 @@ public class ModelBuilder {
                 throw new IllegalArgumentException("非法参数名:"+columnMeta.name);
             }
             createColumn(javaType,columnMeta.name,columnMeta.comment);
+            createSetMethod(javaType,columnMeta.name);
+            createGetMethod(javaType,columnMeta.name);
         }
         join();
         return  builder.toString();
