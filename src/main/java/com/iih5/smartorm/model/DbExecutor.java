@@ -21,14 +21,14 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+
+import javax.swing.*;
 import java.lang.reflect.Field;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
 /**
  * DbExecutor. Professional database query and update tool.
  */
@@ -90,8 +90,9 @@ public class DbExecutor {
         return  getJdbcTemplate(defaultDataSource);
     }
 
+    private Set<String> columnMeta= new HashSet<String>();
     /**
-     * 查找Model对象
+     * 查找Model对象列表
      * @param sql
      * @param paras
      * @param model
@@ -99,23 +100,32 @@ public class DbExecutor {
      * @return
      * @throws Exception
      */
-    public <T> T find(String sql, Object[] paras, final Class<T> model) throws Exception {
-        List<T> list = jdbc.query(sql, paras, new RowMapper<T>() {
+    <T> List<T> queryList(String sql, Object[] paras, final Class<T> model) throws Exception {
+        columnMeta.clear();
+        return jdbc.query(sql, paras, new RowMapper<T>() {
             public T mapRow(ResultSet rs, int rowNum) throws SQLException {
                 try {
+                    if (columnMeta.size()==0){
+                        for (int i = 0; i <rs.getMetaData().getColumnCount() ; i++) {
+                            String column= rs.getMetaData().getColumnName(i+1);
+                            columnMeta.add(column);
+                        }
+                    }
                     Model mModel = (Model) model.newInstance();
                     Field[] fields = mModel.getClass().getFields();
-                    if (0 < fields.length) for (Field f : fields) {
-                        f.set(mModel, rs.getObject(f.getName()));
-                    }
-                    else {
-                        ResultSetMetaData rad = rs.getMetaData();
-                        int columnCount = rad.getColumnCount();
-                        Map<String, Object> attrs = mModel.getAttrs();
-                        for (int i = 1; i <= columnCount; i++) {
-                            Object value = rs.getObject(i);
-                            attrs.put(rad.getColumnName(i), value);
+                    if (0 < fields.length) {
+                        for (Field f : fields) {
+                            if (columnMeta.contains(f.getName())){
+                                f.set(mModel,rs.getObject(f.getName()));
+                            }
                         }
+                    }
+                    ResultSetMetaData rad = rs.getMetaData();
+                    int columnCount = rad.getColumnCount();
+                    Map<String, Object> attrs = mModel.getAttrs();
+                    for (int i = 1; i <= columnCount; i++) {
+                        Object value = rs.getObject(i);
+                        attrs.put(rad.getColumnName(i), value);
                     }
                     return (T) mModel;
                 } catch (Exception e) {
@@ -124,18 +134,6 @@ public class DbExecutor {
                 return null;
             }
         });
-        return (T) list.get(0);
-    }
-    /**
-     * 查找Model对象
-     * @param sql
-     * @param model
-     * @param <T>
-     * @return
-     * @throws Exception
-     */
-    public <T> T find(String sql, final Class<T> model) throws Exception {
-        return find(sql,NULL_PARA_ARRAY,model);
     }
     /**
      * 查找Model对象列表
@@ -147,31 +145,7 @@ public class DbExecutor {
      * @throws Exception
      */
     public <T> List<T> findList(String sql, Object[] paras, final Class<T> model) throws Exception {
-        return jdbc.query(sql, paras, new RowMapper<T>() {
-            public T mapRow(ResultSet rs, int rowNum) throws SQLException {
-                try {
-                    Model mModel = (Model) model.newInstance();
-                    Field[] fields = mModel.getClass().getFields();
-                    if (0 < fields.length) {
-                        for (Field f : fields) {
-                            f.set(mModel, rs.getObject(f.getName()));
-                        }
-                    } else {
-                        ResultSetMetaData rad = rs.getMetaData();
-                        int columnCount = rad.getColumnCount();
-                        Map<String, Object> attrs = mModel.getAttrs();
-                        for (int i = 1; i <= columnCount; i++) {
-                            Object value = rs.getObject(i);
-                            attrs.put(rad.getColumnName(i), value);
-                        }
-                    }
-                    return (T) mModel;
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                return null;
-            }
-        });
+       return queryList(sql, paras, model);
     }
     /**
      * 查找Model对象列表
@@ -183,6 +157,30 @@ public class DbExecutor {
      */
     public <T> List<T> findList(String sql, final Class<T> model) throws Exception {
         return  findList(sql,NULL_PARA_ARRAY,model);
+    }
+    /**
+     * 查找Model对象
+     * @param sql
+     * @param paras
+     * @param model
+     * @param <T>
+     * @return
+     * @throws Exception
+     */
+    public <T> T find(String sql, Object[] paras, final Class<T> model) throws Exception {
+        List<T> result = findList(sql,paras,model);
+        return result.size() > 0 ? result.get(0) : null;
+    }
+    /**
+     * 查找Model对象
+     * @param sql
+     * @param model
+     * @param <T>
+     * @return
+     * @throws Exception
+     */
+    public <T> T find(String sql, final Class<T> model) throws Exception {
+        return find(sql,NULL_PARA_ARRAY,model);
     }
     /**
      * 查找基础对象

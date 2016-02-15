@@ -40,14 +40,23 @@ public abstract class Model<M extends Model> implements Serializable {
         this.table =  StringKit.toTableNameByModel(this.getClass());
         this.jdbc = getJdbc();
     }
-
     public Model(String table) {
         this.table = table;
         this.jdbc = getJdbc();
     }
+
+    /**
+     * 获取JDBC
+     * @return
+     */
     private JdbcTemplate getJdbc() {
         return  Db.getJdbcTemplate();
     }
+
+    /**
+     * 获取属性
+     * @return
+     */
     public Map<String, Object> getAttrs() {
         return attrs;
     }
@@ -56,6 +65,11 @@ public abstract class Model<M extends Model> implements Serializable {
         return modifyFlag;
     }
 
+    /**
+     * 选择数据库源
+     * @param dataSource
+     * @return
+     */
     public M use(String dataSource) {
         this.jdbc = Db.getJdbcTemplate(dataSource);
         return (M) this;
@@ -74,57 +88,129 @@ public abstract class Model<M extends Model> implements Serializable {
         return (M) this;
     }
 
+    /**
+     *
+     * @param attr
+     * @param <T>
+     * @return
+     */
     public <T> T get(String attr) {
         return (T) (attrs.get(attr));
     }
 
+    /**
+     *
+     * @param attr
+     * @return
+     */
     public String getStr(String attr) {
         return (String) attrs.get(attr);
     }
 
+    /**
+     *
+     * @param attr
+     * @return
+     */
     public Integer getInt(String attr) {
         return (Integer) attrs.get(attr);
     }
+
+    /**
+     *
+     * @param attr
+     * @return
+     */
     public Long getLong(String attr) {
         return (Long) attrs.get(attr);
     }
 
+    /**
+     *
+     * @param attr
+     * @return
+     */
     public java.math.BigInteger getBigInteger(String attr) {
         return (java.math.BigInteger) attrs.get(attr);
     }
 
+    /**
+     *
+     * @param attr
+     * @return
+     */
     public Date getDate(String attr) {
         return (Date) attrs.get(attr);
     }
 
+    /**
+     *
+     * @param attr
+     * @return
+     */
     public java.sql.Time getTime(String attr) {
         return (java.sql.Time) attrs.get(attr);
     }
 
+    /**
+     *
+     * @param attr
+     * @return
+     */
     public java.sql.Timestamp getTimestamp(String attr) {
         return (java.sql.Timestamp) attrs.get(attr);
     }
 
+    /**
+     *
+     * @param attr
+     * @return
+     */
     public Double getDouble(String attr) {
         return (Double) attrs.get(attr);
     }
 
+    /**
+     *
+     * @param attr
+     * @return
+     */
     public Float getFloat(String attr) {
         return (Float) attrs.get(attr);
     }
 
+    /**
+     *
+     * @param attr
+     * @return
+     */
     public Boolean getBoolean(String attr) {
         return (Boolean) attrs.get(attr);
     }
 
+    /**
+     *
+     * @param attr
+     * @return
+     */
     public java.math.BigDecimal getBigDecimal(String attr) {
         return (java.math.BigDecimal) attrs.get(attr);
     }
 
+    /**
+     *
+     * @param attr
+     * @return
+     */
     public byte[] getBytes(String attr) {
         return (byte[]) attrs.get(attr);
     }
 
+    /**
+     *
+     * @param attr
+     * @return
+     */
     public Number getNumber(String attr) {
         return (Number) attrs.get(attr);
     }
@@ -240,28 +326,80 @@ public abstract class Model<M extends Model> implements Serializable {
         return (M) this;
     }
     /**
-     * 查找Model对象列表
-     * @param sql
-     * @param paras
-     * @return model list
+     *
+     * @param columns 字段名称，比如 columns="id,name,age"
+     * @param conditions conditions 查询条件，比如 conditions="user_id=? and age=?"
+     * @param conditionParas 查询条件对应的参数
+     * @return 返回Model对象
      * @throws Exception
      */
-    public <T> List<T> findList(String sql, Object[] paras) throws Exception {
-        return jdbc.query(sql, paras, new RowMapper<T>() {
+    public M find(String columns,String conditions,Object[] conditionParas)  throws Exception {
+        List<M> result = findList(columns,conditions,conditionParas);
+        return result.size() > 0 ? result.get(0) : null;
+    }
+
+    /**
+     *
+     * @param conditions conditions 查询条件，比如 conditions="user_id=? and age=?"
+     * @param conditionParas 查询条件对应的参数
+     * @return 返回Model对象
+     * @throws Exception
+     */
+    public M find(String conditions,Object[] conditionParas)  throws Exception {
+        List<M> result = findList(conditions,conditionParas);
+        return result.size() > 0 ? result.get(0) : null;
+    }
+
+    /**
+     *
+     * @param conditions conditions 查询条件，比如 conditions="user_id=? and age=?"
+     * @return 返回Model对象
+     * @throws Exception
+     */
+    public M find(String conditions)  throws Exception {
+        List<M> result = findList(conditions);
+        return result.size() > 0 ? result.get(0) : null;
+    }
+
+    private Set<String> columnMeta= new HashSet<String>();
+    /**
+     * 查找Model对象列表
+     * @param columns 字段名称，比如 columns="id,name,age"
+     * @param conditions 查询条件，比如 conditions="user_id=? and age=?"
+     * @param conditionParas 查询条件对应的参数
+     * @param <T>
+     * @return 返回Model对象列表
+     * @throws Exception
+     */
+    <T> List<T> queryList(String columns,String conditions,Object[] conditionParas)  throws Exception {
+        String sql=DefaultDialect.getDialect().forModelFindBy(table,columns,conditions);
+        columnMeta.clear();
+        return jdbc.query(sql, conditionParas, new RowMapper<T>() {
             public T mapRow(ResultSet rs, int rowNum) throws SQLException {
                 try {
+                    if (columnMeta.size()==0){
+                        for (int i = 0; i <rs.getMetaData().getColumnCount() ; i++) {
+                            String column= rs.getMetaData().getColumnName(i+1);
+                            columnMeta.add(column);
+                        }
+                    }
                     Model<?> mModel = getUsefulClass().newInstance();
                     Field[] fields = mModel.getClass().getFields();
+                    Map<String, Object> attrs11 = mModel.getAttrs();
                     if (fields.length > 0) {
                         for (Field f : fields) {
-                            f.set(mModel, rs.getObject(f.getName()));
+                            if (columnMeta.contains(f.getName())){
+                                f.set(mModel,rs.getObject(f.getName()));
+                                attrs11.put(f.getName(), rs.getObject(f.getName()));
+                            }
                         }
-                    } else {
-                        ResultSetMetaData rsmd = rs.getMetaData();
-                        int columnCount = rsmd.getColumnCount();
-                        Map<String, Object> attrs = mModel.getAttrs();
-                        for (int i = 1; i <= columnCount; i++) {
-                            Object value = rs.getObject(i);
+                    }
+                    ResultSetMetaData rsmd = rs.getMetaData();
+                    int columnCount = rsmd.getColumnCount();
+                    Map<String, Object> attrs = mModel.getAttrs();
+                    for (int i = 1; i <= columnCount; i++) {
+                        Object value = rs.getObject(i);
+                        if (value!=null){
                             attrs.put(rsmd.getColumnName(i), value);
                         }
                     }
@@ -273,96 +411,127 @@ public abstract class Model<M extends Model> implements Serializable {
             }
         });
     }
-
     /**
      * 查找Model对象列表
-     * @param sql
-     * @return model list
+     * @param columns 字段名称，比如 columns="id,name,age"
+     * @param conditions 查询条件，比如 conditions="user_id=? and age=?"
+     * @param conditionParas 查询条件对应的参数
+     * @return 返回Model对象列表
      * @throws Exception
      */
-    public List<M> findList(String sql) throws Exception {
-        return findList(sql, NULL_PARA_ARRAY);
+    public  List<M> findList(String columns,String conditions,Object[] conditionParas)  throws Exception {
+       return queryList(columns, conditions, conditionParas);
     }
     /**
-     * 查找Model对象
-     * @param sql
-     * @return this model
+     * 查找Model对象列表
+     * @param conditions  查询条件，比如 conditions="user_id=? and age=?"
+     * @param conditionParas 查询条件对应的参数
+     * @return 返回Model对象列表
      * @throws Exception
      */
-    public M find(String sql, Object[] paras) throws Exception {
-        List<M> result = findList(sql, paras);
-        return result.size() > 0 ? result.get(0) : null;
+    public List<M> findList(String conditions,Object[] conditionParas)  throws Exception {
+        return findList("*",conditions,conditionParas);
     }
+
     /**
-     * 查找Model对象
-     * @param sql
-     * @return this model
+     *
+     * @param conditions 查询条件，比如 conditions="user_id=? and age=?"
+     * @return 返回Model对象列表
      * @throws Exception
      */
-    public M find(String sql) throws Exception {
-        return find(sql,NULL_PARA_ARRAY);
+    public List<M> findList(String conditions)  throws Exception {
+        return findList(conditions,NULL_PARA_ARRAY);
+    }
+    /**
+     * 查找基础对象列表(Boolean,Int,Number,Float,String...)
+     * @param column 字段名称，比如 columns="id,name,age"
+     * @param conditions 查询条件，比如 conditions="user_id=? and age=?"
+     * @param conditionParas 查询条件对应的参数
+     * @param classType  (Boolean,Int,Number,Float,String...)
+     * @param <T>
+     * @return 返回基础对象列表
+     * @throws Exception
+     */
+    public  <T> List<T> findBasicObjectList(String column,String conditions,Object[] conditionParas, Class<T> classType) throws Exception {
+        String sql=DefaultDialect.getDialect().forModelFindBy(table,column,conditions);
+        return  jdbc.queryForList(sql,conditionParas,classType);
     }
 
     /**
-     * 查找基础对象
-     * @param sql
-     * @param paras
-     * @param classType (Boolean,Int,Number,Float,String...)
-     * @param <T>
-     * @return
+     * 查找基础对象列表(Boolean,Int,Number,Float,String...)
+     * @param column 字段名称，比如 columns="id,name,age"
+     * @param conditions 查询条件，比如 conditions="user_id=? and age=?"
+     * @param classType  (Boolean,Int,Number,Float,String...)
+     * @return 返回基础对象列表
+     * @throws Exception
      */
-    public static <T> T findBasicObject(String sql, Object[] paras, Class<T> classType) {
-        return Db.findBasicObject(sql,paras,classType);
+    public  <T> List<T> findBasicObjectList(String column,String conditions,  Class<T> classType) throws Exception {
+        return findBasicObjectList(column,conditions,NULL_PARA_ARRAY,classType);
+    }
+
+
+    /**
+     * 查找基础对象(Boolean,Int,Number,Float,String...)
+     * @param column 字段名称，比如 columns="id,name,age"
+     * @param conditions 查询条件，比如 conditions="user_id=? and age=?"
+     * @param conditionParas 查询条件对应的参数
+     * @param classType (Boolean,Int,Number,Float,String...)
+     * @return 返回基础对象
+     */
+    public <T> T findBasicObject(String column,String conditions,Object[] conditionParas, Class<T> classType) throws Exception {
+        String sql=DefaultDialect.getDialect().forModelFindBy(table,column,conditions);
+        return  jdbc.queryForObject(sql,conditionParas,classType);
     }
 
     /**
-     * 查找基础对象
-     * @param sql
+     * 查找基础对象 (Boolean,Int,Number,Float,String...)
+     * @param column 字段名称，比如 columns="id,name,age"
+     * @param conditions 查询条件，比如 conditions="user_id=? and age=?"
      * @param classType (Boolean,Int,Number,Float,String...)
      * @param <T>
-     * @return
+     * @return 返回基础对象
      */
-    public  <T> T findBasicObject(String sql, Class<T> classType) {
-        return Db.findBasicObject(sql,classType);
+    public  <T> T findBasicObject(String column,String conditions, Class<T> classType) throws Exception {
+        return (T) findBasicObject(column,conditions,NULL_PARA_ARRAY,classType);
     }
 
-    /**
-     * 查找基础对象列表
-     * @param sql
-     * @param paras
-     * @param classType (Boolean,Int,Number,Float,String...)
-     * @param <T>
-     * @return
-     */
-    public  <T> List<T> findBasicObjectList(String sql, Object[] paras, Class<T> classType) {
-        return Db.findBasicObjectList(sql,paras,classType);
-    }
-
-    /**
-     * 查找基础对象列表
-     * @param sql
-     * @param classType (Boolean,Int,Number,Float,String...)
-     * @param <T>
-     * @return
-     */
-    public  <T> List<T> findBasicObjectList(String sql, Class<T> classType) {
-        return Db.findBasicObjectList(sql,classType);
-    }
     /**
      * 分页查询
-     * @param model
      * @param pageNumber 第几页
      * @param pageSize 每一页的大小
-     * @param sql 查询语句 (不能带limit,系统会自动带上)
+     * @param columns 字段名称，比如 columns="id,name,age"
+     * @param conditions 查询条件，比如 conditions="user_id=? and age=?"
      * @param paras 查询参数
-     * @return the Page object
+     * @return 返回对象列表
+     * @throws Exception
      */
-    public  <T> Page<T> paginate(final  Class<T> model,int pageNumber, int pageSize, String sql,Object[] paras) throws Exception {
-        return Db.paginate(model,pageNumber,pageSize,sql,paras);
+    public   Page<M> paginate(int pageNumber, int pageSize,String columns ,String conditions,Object[] paras) throws Exception {
+        String sql=DefaultDialect.getDialect().forModelFindBy(table,columns,conditions);
+        return (Page<M>)Db.paginate(this.getUsefulClass(),pageNumber,pageSize,sql,paras);
     }
 
+    /**
+     * 分页查询
+     * @param pageNumber 第几页
+     * @param pageSize 每一页的大小
+     * @param columns 字段名称，比如 columns="id,name,age"
+     * @param conditions 查询条件，比如 conditions="user_id=? and age=?"
+     * @param paras 查询参数
+     * @param sortColumn 排序字段
+     * @param sortType 排序类型（升或降）
+     * @return 返回对象列表
+     * @throws Exception
+     */
+    public   Page<M> paginateOrderBy(int pageNumber, int pageSize,String columns ,String conditions,Object[] paras,String sortColumn,String sortType) throws Exception {
+        String sql=DefaultDialect.getDialect().forModelFindBy(table,columns,conditions)+" order by "+sortColumn+" "+sortType+" ";
+        return (Page<M>)Db.paginate(this.getUsefulClass(),pageNumber,pageSize,sql,paras);
+    }
 
-
+    /**
+     *
+     * @param o
+     * @return
+     */
     public boolean equals(Object o) {
         if (!(o instanceof Model))
             return false;
@@ -373,6 +542,10 @@ public abstract class Model<M extends Model> implements Serializable {
         return this.attrs.equals(((Model) o).attrs);
     }
 
+    /**
+     *
+     * @return
+     */
     public int hashCode() {
         return (attrs == null ? 0 : attrs.hashCode()) ^ (getModifyFlag() == null ? 0 : getModifyFlag().hashCode());
     }
@@ -389,6 +562,10 @@ public abstract class Model<M extends Model> implements Serializable {
         return JSON.toJSONString(this.getAttrs());
     }
 
+    /**
+     *
+     * @return
+     */
     private Class<? extends Model> getUsefulClass() {
         Class c = getClass();
         return c.getName().indexOf("EnhancerByCGLIB") == -1 ? c : c.getSuperclass();
