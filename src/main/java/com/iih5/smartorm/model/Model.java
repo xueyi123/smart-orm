@@ -385,22 +385,21 @@ public abstract class Model<M extends Model> implements Serializable {
                     }
                     Model<?> mModel = getUsefulClass().newInstance();
                     Field[] fields = mModel.getClass().getFields();
-                    Map<String, Object> attrs11 = mModel.getAttrs();
                     if (fields.length > 0) {
                         for (Field f : fields) {
                             if (columnMeta.contains(f.getName())){
                                 f.set(mModel,rs.getObject(f.getName()));
-                                attrs11.put(f.getName(), rs.getObject(f.getName()));
                             }
                         }
-                    }
-                    ResultSetMetaData rsmd = rs.getMetaData();
-                    int columnCount = rsmd.getColumnCount();
-                    Map<String, Object> attrs = mModel.getAttrs();
-                    for (int i = 1; i <= columnCount; i++) {
-                        Object value = rs.getObject(i);
-                        if (value!=null){
-                            attrs.put(rsmd.getColumnName(i), value);
+                    }else {
+                        ResultSetMetaData rsmd = rs.getMetaData();
+                        int columnCount = rsmd.getColumnCount();
+                        Map<String, Object> attrs = mModel.getAttrs();
+                        for (int i = 1; i <= columnCount; i++) {
+                            Object value = rs.getObject(i);
+                            if (value!=null){
+                                attrs.put(rsmd.getColumnName(i), value);
+                            }
                         }
                     }
                     return (T) mModel;

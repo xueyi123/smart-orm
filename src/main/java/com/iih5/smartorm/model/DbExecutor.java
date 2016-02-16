@@ -119,13 +119,14 @@ public class DbExecutor {
                                 f.set(mModel,rs.getObject(f.getName()));
                             }
                         }
-                    }
-                    ResultSetMetaData rad = rs.getMetaData();
-                    int columnCount = rad.getColumnCount();
-                    Map<String, Object> attrs = mModel.getAttrs();
-                    for (int i = 1; i <= columnCount; i++) {
-                        Object value = rs.getObject(i);
-                        attrs.put(rad.getColumnName(i), value);
+                    }else {
+                        ResultSetMetaData rad = rs.getMetaData();
+                        int columnCount = rad.getColumnCount();
+                        Map<String, Object> attrs = mModel.getAttrs();
+                        for (int i = 1; i <= columnCount; i++) {
+                            Object value = rs.getObject(i);
+                            attrs.put(rad.getColumnName(i), value);
+                        }
                     }
                     return (T) mModel;
                 } catch (Exception e) {
