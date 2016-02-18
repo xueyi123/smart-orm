@@ -81,7 +81,9 @@ public class TableMetaTool {
                     columnMeta.typeLen=0;
                 }else {
                     String typeLen= tmp.substring(tmp.indexOf("(")+1,tmp.indexOf(")"));
-                    columnMeta.typeLen=Integer.valueOf(typeLen);
+                    if (!typeLen.contains(",")){
+                        columnMeta.typeLen=Integer.valueOf(typeLen);
+                    }
                 }
                 tableMeta.columnMetas.add(columnMeta);
             }

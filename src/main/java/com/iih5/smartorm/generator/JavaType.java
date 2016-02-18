@@ -45,7 +45,7 @@ public class JavaType {
 		put("year","java.sql.Date");//1字节，年份
 	}};
 	public static String getJavaTypeByDataType(String dataType,int typeLen) {
-		if(dataType.equals("tinyint")&& typeLen==0) {
+		if(dataType.equals("tinyint")&& typeLen==1) {
 			return "java.lang.Boolean";
 		}
 		return map.get(dataType);
