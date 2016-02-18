@@ -44,7 +44,10 @@ public class JavaType {
 		put("timestamp","java.sql.Timestamp");//4字节，自动存储记录修改的时间
 		put("year","java.sql.Date");//1字节，年份
 	}};
-	public static String getJavaTypeByDataType(String dataType) {
+	public static String getJavaTypeByDataType(String dataType,int typeLen) {
+		if(dataType.equals("tinyint")&& typeLen==0) {
+			return "java.lang.Boolean";
+		}
 		return map.get(dataType);
 	}
 

@@ -32,7 +32,7 @@ public class TableMetaTool {
     public static List<TableMeta> findTableMetaList(String dataSource, String dbName) throws Exception{
         List<TableMeta> tableList = new ArrayList<TableMeta>();
         Set<String> sets= new HashSet<String>();
-        String sql="select TABLE_NAME,DATA_TYPE,COLUMN_NAME,COLUMN_COMMENT from information_schema.columns where table_schema=? ";
+        String sql="select TABLE_NAME,DATA_TYPE,COLUMN_TYPE,COLUMN_NAME,COLUMN_COMMENT from information_schema.columns where table_schema=? ";
         List<MetaModel> list = Db.use(dataSource).findList(sql,new Object[]{dbName}, MetaModel.class);
         for (MetaModel gModel:list) {
             sets.add(gModel.getStr("TABLE_NAME"));
@@ -51,7 +51,7 @@ public class TableMetaTool {
     public static List<TableMeta> findTableMetaList(String dbName) throws Exception{
         List<TableMeta> tableList = new ArrayList<TableMeta>();
         Set<String> sets= new HashSet<String>();
-        String sql="select TABLE_NAME,DATA_TYPE,COLUMN_NAME,COLUMN_COMMENT from information_schema.columns where table_schema=? ";
+        String sql="select TABLE_NAME,DATA_TYPE,COLUMN_TYPE,COLUMN_NAME,COLUMN_COMMENT from information_schema.columns where table_schema=? ";
         List<MetaModel> list = Db.findList(sql,new Object[]{dbName}, MetaModel.class);
         for (MetaModel gModel:list) {
             sets.add(gModel.getStr("TABLE_NAME"));
@@ -76,6 +76,13 @@ public class TableMetaTool {
                 columnMeta.dataType=model.getStr("DATA_TYPE");
                 columnMeta.name=  model.getStr("COLUMN_NAME");
                 columnMeta.comment=model.getStr("COLUMN_COMMENT");
+                String tmp= model.getStr("COLUMN_TYPE");
+                if (tmp.indexOf("(")<0||tmp.indexOf(")")<0){
+                    columnMeta.typeLen=0;
+                }else {
+                    String typeLen= tmp.substring(tmp.indexOf("(")+1,tmp.indexOf(")"));
+                    columnMeta.typeLen=Integer.valueOf(typeLen);
+                }
                 tableMeta.columnMetas.add(columnMeta);
             }
         }

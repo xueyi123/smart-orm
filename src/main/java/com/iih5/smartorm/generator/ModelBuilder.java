@@ -98,7 +98,7 @@ public class ModelBuilder {
         createClass(StringKit.toModelNameByTable(tableMeta.name)+"Model");
         createSerialVersion();
         for (ColumnMeta columnMeta:tableMeta.columnMetas) {
-            String javaType= JavaType.getJavaTypeByDataType(columnMeta.dataType);
+            String javaType= JavaType.getJavaTypeByDataType(columnMeta.dataType,columnMeta.typeLen);
             if (javaType==null){
                 throw new NullPointerException("找不到 "+columnMeta.dataType+"对应的JavaType");
             }
