@@ -1,5 +1,5 @@
 #SmartORM使用说明
-##这是一个ORM模型组件，可快速实现SQL操作(目前只支持mysql)
+##这是一个ORM模型组件，可快速实现SQL操作(支持mysql)
 ##安装
 依赖于spring环境下,在spring.xml配置\<bean class="com.iih5.smartorm.kit.SpringKit"/\>
 ##工作方式
