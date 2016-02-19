@@ -48,6 +48,9 @@ public class JavaType {
 		if(dataType.equals("tinyint")&& typeLen==1) {
 			return "java.lang.Boolean";
 		}
+		if ((dataType.equals("int")||dataType.equals("bigint"))&& typeLen>12){
+			return "java.lang.Long";
+		}
 		return map.get(dataType);
 	}
 

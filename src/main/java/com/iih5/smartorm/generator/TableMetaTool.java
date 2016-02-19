@@ -79,7 +79,9 @@ public class TableMetaTool {
                 String tmp= model.getStr("COLUMN_TYPE");
                 if (tmp.indexOf("(")<0||tmp.indexOf(")")<0){
                     columnMeta.typeLen=0;
-                }else {
+                }else if (tmp.contains("unsigned")&& tmp.contains("int")){
+                   columnMeta.typeLen=14;
+                } else {
                     String typeLen= tmp.substring(tmp.indexOf("(")+1,tmp.indexOf(")"));
                     if (!typeLen.contains(",")){
                         columnMeta.typeLen=Integer.valueOf(typeLen);
