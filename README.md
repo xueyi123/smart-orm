@@ -27,4 +27,7 @@
 <br>【1.0.1】 优化 Model 查询接口(接口参数也有所变动，注意更新)
 <br>【1.0.1】 修改了一些Bug
 
+##API查看地址
+http://doc.iih5.com/orm/index.html
+
 
