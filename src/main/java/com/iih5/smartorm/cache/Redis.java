@@ -686,90 +686,90 @@ public class Redis {
 
 
     //-----------------------------二进制----------------------------------------
-    public String set(byte[] key, byte[] value) {
+    public static String set(byte[] key, byte[] value) {
         return defaultExecutor.set(key, value);
     }
 
-    public String set(byte[] key, byte[] value, byte[] nxxx, byte[] expx, long time) {
+    public static String set(byte[] key, byte[] value, byte[] nxxx, byte[] expx, long time) {
         return defaultExecutor.set(key, value, nxxx, expx, time);
     }
 
-    public byte[] get(byte[] key) {
+    public static byte[] get(byte[] key) {
         return defaultExecutor.get(key);
     }
 
-    public Long exists(byte[]... keys) {
+    public static Long exists(byte[]... keys) {
         return defaultExecutor.exists(keys);
     }
 
-    public Boolean exists(byte[] key) {
+    public static Boolean exists(byte[] key) {
         return defaultExecutor.exists(key);
     }
 
-    public Long del(byte[]... keys) {
+    public static Long del(byte[]... keys) {
         return defaultExecutor.del(keys);
     }
 
-    public Long del(byte[] key) {
+    public static Long del(byte[] key) {
         return defaultExecutor.del(key);
     }
 
-    public Set<byte[]> keys(byte[] pattern) {
+    public static Set<byte[]> keys(byte[] pattern) {
         return defaultExecutor.keys(pattern);
     }
 
-    public Long expire(byte[] key, int seconds) {
+    public static Long expire(byte[] key, int seconds) {
         return defaultExecutor.expire(key, seconds);
     }
 
-    public Long ttl(byte[] key) {
+    public static Long ttl(byte[] key) {
         return defaultExecutor.ttl(key);
     }
 
-    public byte[] getSet(byte[] key, byte[] value) {
+    public static byte[] getSet(byte[] key, byte[] value) {
         return defaultExecutor.getSet(key, value);
     }
 
-    public List<byte[]> mget(byte[]... keys) {
+    public static List<byte[]> mget(byte[]... keys) {
         return defaultExecutor.mget(keys);
     }
 
-    public Long append(byte[] key, byte[] value) {
+    public static Long append(byte[] key, byte[] value) {
         return defaultExecutor.append(key, value);
     }
 
-    public byte[] substr(byte[] key, int start, int end) {
+    public static byte[] substr(byte[] key, int start, int end) {
         return defaultExecutor.substr(key, start, end);
     }
 
-    public Long hset(byte[] key, byte[] field, byte[] value) {
+    public static Long hset(byte[] key, byte[] field, byte[] value) {
         return defaultExecutor.hset(key, field, value);
     }
 
-    public byte[] hget(byte[] key, byte[] field) {
+    public static byte[] hget(byte[] key, byte[] field) {
         return defaultExecutor.hget(key, field);
     }
-    public Boolean hexists(byte[] key, byte[] field) {
+    public static Boolean hexists(byte[] key, byte[] field) {
         return defaultExecutor.hexists(key, field);
     }
 
-    public Long hdel(byte[] key, byte[]... fields) {
+    public static Long hdel(byte[] key, byte[]... fields) {
         return defaultExecutor.hdel(key, fields);
     }
 
-    public Long hlen(byte[] key) {
+    public static Long hlen(byte[] key) {
         return defaultExecutor.hlen(key);
     }
 
-    public Set<byte[]> hkeys(byte[] key) {
+    public static Set<byte[]> hkeys(byte[] key) {
         return defaultExecutor.hkeys(key);
     }
 
-    public List<byte[]> hvals(byte[] key) {
+    public static List<byte[]> hvals(byte[] key) {
         return defaultExecutor.hvals(key);
     }
 
-    public Map<byte[], byte[]> hgetAll(byte[] key) {
+    public static Map<byte[], byte[]> hgetAll(byte[] key) {
         return defaultExecutor.hgetAll(key);
     }
 
