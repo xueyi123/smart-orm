@@ -16,9 +16,13 @@ package com.iih5.smartorm.cache;/*
 
 import com.iih5.smartorm.kit.SpringKit;
 import redis.clients.jedis.*;
+import redis.clients.jedis.exceptions.JedisDataException;
+import redis.clients.jedis.exceptions.JedisException;
 import redis.clients.jedis.params.geo.GeoRadiusParam;
 import redis.clients.jedis.params.sortedset.ZAddParams;
 import redis.clients.jedis.params.sortedset.ZIncrByParams;
+import redis.clients.util.JedisByteHashMap;
+import redis.clients.util.SafeEncoder;
 
 import java.util.*;
 
@@ -1137,6 +1141,160 @@ public class RedisExecutor {
     public Long bitop(BitOP op, String destKey, String... srcKeys) {
         Jedis jedis=pool.getResource();
         Long d=jedis.bitop(op, destKey, srcKeys);
+        jedis.close();
+        return d;
+    }
+
+   //------------------------------二进制-----------------------------------------
+    public String set(byte[] key, byte[] value) {
+        Jedis jedis=pool.getResource();
+        String d=jedis.set(key,value);
+        jedis.close();
+        return d;
+    }
+
+    public String set(byte[] key, byte[] value, byte[] nxxx, byte[] expx, long time) {
+        Jedis jedis=pool.getResource();
+        String d=jedis.set(key,value,nxxx,expx,time);
+        jedis.close();
+        return d;
+    }
+
+    public byte[] get(byte[] key) {
+        Jedis jedis=pool.getResource();
+        byte[] d=jedis.get(key);
+        jedis.close();
+        return d;
+    }
+
+    public Long exists(byte[]... keys) {
+        Jedis jedis=pool.getResource();
+        Long d=jedis.exists(keys);
+        jedis.close();
+        return d;
+    }
+
+    public Boolean exists(byte[] key) {
+        Jedis jedis=pool.getResource();
+        Boolean d=jedis.exists(key);
+        jedis.close();
+        return d;
+    }
+
+    public Long del(byte[]... keys) {
+        Jedis jedis=pool.getResource();
+        Long d=jedis.del(keys);
+        jedis.close();
+        return d;
+    }
+
+    public Long del(byte[] key) {
+        Jedis jedis=pool.getResource();
+        Long d=jedis.del(key);
+        jedis.close();
+        return d;
+    }
+
+    public Set<byte[]> keys(byte[] pattern) {
+        Jedis jedis=pool.getResource();
+        Set<byte[]> d=jedis.keys(pattern);
+        jedis.close();
+        return d;
+    }
+
+    public Long expire(byte[] key, int seconds) {
+        Jedis jedis=pool.getResource();
+        Long d=jedis.expire(key,seconds);
+        jedis.close();
+        return d;
+    }
+
+    public Long ttl(byte[] key) {
+        Jedis jedis=pool.getResource();
+        Long d=jedis.ttl(key);
+        jedis.close();
+        return d;
+    }
+
+    public byte[] getSet(byte[] key, byte[] value) {
+        Jedis jedis=pool.getResource();
+        byte[]  d=jedis.getSet(key,value);
+        jedis.close();
+        return d;
+    }
+
+    public List<byte[]> mget(byte[]... keys) {
+        Jedis jedis=pool.getResource();
+        List<byte[]>  d=jedis.mget(keys);
+        jedis.close();
+        return d;
+    }
+
+    public Long append(byte[] key, byte[] value) {
+        Jedis jedis=pool.getResource();
+        Long  d=jedis.append(key,value);
+        jedis.close();
+        return d;
+    }
+
+    public byte[] substr(byte[] key, int start, int end) {
+        Jedis jedis=pool.getResource();
+        byte[] d=jedis.substr(key,start,end);
+        jedis.close();
+        return d;
+    }
+
+    public Long hset(byte[] key, byte[] field, byte[] value) {
+        Jedis jedis=pool.getResource();
+        Long d=jedis.hset(key,field,value);
+        jedis.close();
+        return d;
+    }
+
+    public byte[] hget(byte[] key, byte[] field) {
+        Jedis jedis=pool.getResource();
+        byte[] d=jedis.hget(key,field);
+        jedis.close();
+        return d;
+    }
+    public Boolean hexists(byte[] key, byte[] field) {
+        Jedis jedis=pool.getResource();
+        Boolean d=jedis.hexists(key,field);
+        jedis.close();
+        return d;
+    }
+
+    public Long hdel(byte[] key, byte[]... fields) {
+        Jedis jedis=pool.getResource();
+        Long d=jedis.hdel(key,fields);
+        jedis.close();
+        return d;
+    }
+
+    public Long hlen(byte[] key) {
+        Jedis jedis=pool.getResource();
+        Long d=jedis.hlen(key);
+        jedis.close();
+        return d;
+    }
+
+    public Set<byte[]> hkeys(byte[] key) {
+        Jedis jedis=pool.getResource();
+        Set<byte[]> d=jedis.hkeys(key);
+        jedis.close();
+        return d;
+    }
+
+    public List<byte[]> hvals(byte[] key) {
+        Jedis jedis=pool.getResource();
+        List<byte[]>  d=jedis.hvals(key);
+        jedis.close();
+        return d;
+    }
+
+    public Map<byte[], byte[]> hgetAll(byte[] key) {
+        Jedis jedis=pool.getResource();
+        Map<byte[], byte[]> d=jedis.hgetAll(key);
         jedis.close();
         return d;
     }
