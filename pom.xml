@@ -5,10 +5,10 @@
     <modelVersion>4.0.0</modelVersion>
     <packaging>jar</packaging>
     <groupId>com.iih5</groupId>
-    <artifactId>smartorm</artifactId>
+    <artifactId>smart-orm</artifactId>
 
-    <version>1.1.1</version>
-    <name>smartorm</name>
+    <version>1.2</version>
+    <name>smart-orm</name>
     <description>这是一个ORM模型组件，可快速实现SQL操作,目前支持mysql,NoSQL库目前支持Redis</description>
     <url>http://www.iih5.com/</url>
 
