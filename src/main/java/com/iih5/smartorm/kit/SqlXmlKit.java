@@ -26,6 +26,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 用于xml配置sql语句的解决插件
+ */
 public class SqlXmlKit {
     // map<className,<method,sql>>
     private static   HashMap<String, Map<String, String>> resourcesMap = new HashMap<String, Map<String, String>>();
