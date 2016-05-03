@@ -107,7 +107,7 @@ public class DbExecutor {
                 try {
                     if (columnMeta.size()==0){
                         for (int i = 0; i <rs.getMetaData().getColumnCount() ; i++) {
-                            String column= rs.getMetaData().getColumnName(i+1);
+                            String column= rs.getMetaData().getColumnLabel(i+1);
                             columnMeta.add(column);
                         }
                     }
