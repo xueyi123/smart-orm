@@ -11,14 +11,12 @@
     <name>smart-orm</name>
     <description>这是一个ORM模型组件，可快速实现SQL操作,目前支持mysql,NoSQL库目前支持Redis</description>
     <url>http://www.iih5.com/</url>
-
     <licenses>
         <license>
             <name>The Apache Software License, Version 2.0</name>
             <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
         </license>
     </licenses>
-
     <developers>
         <developer>
             <name>xueyi</name>
