@@ -379,7 +379,7 @@ public abstract class Model<M extends Model> implements Serializable {
                 try {
                     if (columnMeta.size()==0){
                         for (int i = 0; i <rs.getMetaData().getColumnCount() ; i++) {
-                            String column= rs.getMetaData().getColumnName(i+1);
+                            String column= rs.getMetaData().getColumnLabel(i+1);
                             columnMeta.add(column);
                         }
                     }
@@ -389,6 +389,7 @@ public abstract class Model<M extends Model> implements Serializable {
                         for (Field f : fields) {
                             if (columnMeta.contains(f.getName())){
                                 f.set(mModel,rs.getObject(f.getName()));
+                                System.out.println(f.getName());
                             }
                         }
                     }else {
@@ -398,7 +399,7 @@ public abstract class Model<M extends Model> implements Serializable {
                         for (int i = 1; i <= columnCount; i++) {
                             Object value = rs.getObject(i);
                             if (value!=null){
-                                attrs.put(rsmd.getColumnName(i), value);
+                                attrs.put(rsmd.getColumnLabel(i), value);
                             }
                         }
                     }

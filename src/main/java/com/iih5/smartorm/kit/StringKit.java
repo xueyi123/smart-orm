@@ -122,6 +122,7 @@ public class StringKit {
 		}
 		return new String(toArray, 0, j);
 	}
+
 	/**
 	 *将驼峰式命名的字符串转换为下划线方式
 	 * @param camelCase 转换前的驼峰式命名的字符串

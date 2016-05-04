@@ -102,7 +102,7 @@ public class SqlXmlKit {
     }
 
     /**
-     * 获取当前sql配置语句
+     * 获取sql语句
      * @return
      */
     public static String getCurrentSql(){

@@ -80,14 +80,14 @@ public class ModelBuilder {
     }
     private ModelBuilder createSetMethod(String type, String column){
         setMethodBuilder.append("    public void set");
-        setMethodBuilder.append(StringKit.firstCharToUpperCase(StringKit.toCamelCaseName(column))+"("+type+" "+column+") { \n");
+        setMethodBuilder.append(StringKit.firstCharToUpperCase(column)+"("+type+" "+column+") { \n");
         setMethodBuilder.append("        this."+column+" = "+column+"; \n");
         setMethodBuilder.append("    }\n");
         return (this);
     }
     private ModelBuilder createGetMethod(String type, String column){
         setMethodBuilder.append("    public "+type+" "+"get");
-        setMethodBuilder.append(StringKit.firstCharToUpperCase(StringKit.toCamelCaseName(column))+"() { \n");
+        setMethodBuilder.append(StringKit.firstCharToUpperCase(column)+"() { \n");
         setMethodBuilder.append("        return "+column+";\n");
         setMethodBuilder.append("    }\n");
         return (this);
