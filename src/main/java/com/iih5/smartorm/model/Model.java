@@ -389,7 +389,6 @@ public abstract class Model<M extends Model> implements Serializable {
                         for (Field f : fields) {
                             if (columnMeta.contains(f.getName())){
                                 f.set(mModel,rs.getObject(f.getName()));
-                                System.out.println(f.getName());
                             }
                         }
                     }else {
