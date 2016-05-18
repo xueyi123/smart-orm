@@ -111,9 +111,6 @@ public class MysqlDialect implements Dialect {
       //  ②建造一个匹配器
         Matcher m = p.matcher(d);
       //  ③进行判断，得到结果
-        boolean b = m.find();
-        System.out.println(b);
-
     }
 
 
