@@ -18,6 +18,8 @@ package com.iih5.smartorm.dialect;
 
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MysqlDialect implements Dialect {
     public String forModelFindBy(String tableName,String columns,String conditions) {
@@ -73,6 +75,7 @@ public class MysqlDialect implements Dialect {
     public void forModelUpdate(String tableName,String conditions, Map<String, Object> attrs, Set<String> modifyFlag, StringBuilder sql) {
         List<Object> paras= new ArrayList<Object>();
         sql.append("update ").append(tableName).append(" set ");
+        Pattern p= Pattern.compile("[0-9\\+\\-\\*\\/\\(\\)]*");
         for (Entry<String, Object> e : attrs.entrySet()) {
             String colName = e.getKey();
             if (modifyFlag.contains(colName)) {
@@ -80,7 +83,14 @@ public class MysqlDialect implements Dialect {
                     sql.append(", ");
                 }
                 if (e.getValue() instanceof String){
-                    sql.append(" ").append(colName).append(" = '"+e.getValue()+"'");
+                    String d=String.valueOf(e.getValue());
+                    String dr= ((String) e.getValue()).replace(colName,"");
+                    Matcher m = p.matcher(dr);
+                    if (m.matches()){
+                        sql.append(" ").append(colName).append(" = "+e.getValue());
+                    }else {
+                        sql.append(" ").append(colName).append(" = '"+e.getValue()+"'");
+                    }
                 }else {
                     sql.append(" ").append(colName).append(" = "+e.getValue());
                 }
@@ -90,5 +100,19 @@ public class MysqlDialect implements Dialect {
         sql.append(" where ");
         sql.append(conditions);
     }
+
+    public static void main(String[] args) {
+        String regex="[0-9\\+\\-\\*\\/\\(\\)]*";
+        String d="value100";
+        Pattern p= Pattern.compile(regex);//"[+-/*]"
+      //  ②建造一个匹配器
+        Matcher m = p.matcher(d);
+      //  ③进行判断，得到结果
+        boolean b = m.find();
+        System.out.println(b);
+
+    }
+
+
 
 }
