@@ -342,7 +342,7 @@ public abstract class Model<M extends Model> implements Serializable {
      *
      * @param conditions conditions 查询条件，比如 conditions="user_id=? and age=?"
      * @param conditionParas 查询条件对应的参数
-     * @return 返回Model对象
+     * @return 返回Model对象 1
      * @throws Exception
      */
     public M find(String conditions,Object[] conditionParas)  throws Exception {
@@ -389,7 +389,6 @@ public abstract class Model<M extends Model> implements Serializable {
                         for (Field f : fields) {
                             if (columnMeta.contains(f.getName())){
                                 f.set(mModel,rs.getObject(f.getName()));
-                                System.out.println(f.getName());
                             }
                         }
                     }else {
