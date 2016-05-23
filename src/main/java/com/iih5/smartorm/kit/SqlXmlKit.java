@@ -15,6 +15,7 @@
  */
 package com.iih5.smartorm.kit;
 
+import org.apache.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
@@ -33,15 +34,20 @@ public class SqlXmlKit {
     // map<className,<method,sql>>
     private static   HashMap<String, Map<String, String>> resourcesMap = new HashMap<String, Map<String, String>>();
     public SqlXmlKit(){
-        init("sql");
-    }
-    public SqlXmlKit(String resources){
-        init(resources);
-    }
-    private void init(String resources)  {
         try {
-        URL url=Thread.currentThread().getContextClassLoader().getResource(resources);
-        File dataDir = new File(url.toURI());
+            URL url=Thread.currentThread().getContextClassLoader().getResource("sql");
+            File dataDir = new File(url.toURI());
+            init(dataDir);
+        }catch (Exception e){
+            e.printStackTrace();
+            Logger.getLogger(SqlXmlKit.class).error("读取sql xml 文件异常");
+        }
+    }
+    public SqlXmlKit(String path){
+        init(new File(path));
+    }
+    private void init(File dataDir)  {
+        try {
         List<File> files = new ArrayList<File>();
         listDirectory(dataDir, files);
         for(File file : files){
@@ -80,14 +86,6 @@ public class SqlXmlKit {
                 }
             }
         }
-    }
-
-    /**
-     * 重新载入
-     */
-    public void reload() {
-        resourcesMap.clear();
-        init("sql");
     }
 
     /**
