@@ -40,7 +40,7 @@ public class DbExecutor {
     /**
      * 选择使用数据库（默认选中第一个）
      * @param dataSource 在spring.xml里配置的jdbc dataSource beanId
-     * @return 返回DbExecutor
+     * @return 返回DbExecutor.
      */
     public static  DbExecutor use(String dataSource) {
         DbExecutor executor =map.get(dataSource);
