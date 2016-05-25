@@ -90,7 +90,7 @@ public class DbExecutor {
         return  getJdbcTemplate(defaultDataSource);
     }
 
-    private Set<String> columnMeta= new HashSet<String>();
+   // private Set<String> columnMeta= new HashSet<String>();
     /**
      * 查找Model对象列表
      * @param sql
@@ -101,7 +101,7 @@ public class DbExecutor {
      * @throws Exception
      */
     <T> List<T> queryList(String sql, Object[] paras, final Class<T> model) throws Exception {
-        columnMeta.clear();
+        final Set<String> columnMeta= new HashSet<String>();
         return jdbc.query(sql, paras, new RowMapper<T>() {
             public T mapRow(ResultSet rs, int rowNum) throws SQLException {
                 try {
