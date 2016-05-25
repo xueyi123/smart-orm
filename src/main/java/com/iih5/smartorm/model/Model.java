@@ -39,8 +39,6 @@ public abstract class Model<M extends Model> implements Serializable {
     public Model() {
         this.table =  StringKit.toTableNameByModel(this.getClass());
         this.jdbc = getJdbc();
-
-        System.out.println("");
     }
     public Model(String table) {
         this.table = table;
