@@ -361,7 +361,7 @@ public abstract class Model<M extends Model> implements Serializable {
         return result.size() > 0 ? result.get(0) : null;
     }
 
-    private Set<String> columnMeta= new HashSet<String>();
+  //  private Set<String> columnMeta= new HashSet<String>();
     /**
      * 查找Model对象列表
      * @param columns 字段名称，比如 columns="id,name,age"
@@ -373,7 +373,7 @@ public abstract class Model<M extends Model> implements Serializable {
      */
     <T> List<T> queryList(String columns,String conditions,Object[] conditionParas)  throws Exception {
         String sql=DefaultDialect.getDialect().forModelFindBy(table,columns,conditions);
-        columnMeta.clear();
+        final Set<String> columnMeta= new HashSet<String>();
         return jdbc.query(sql, conditionParas, new RowMapper<T>() {
             public T mapRow(ResultSet rs, int rowNum) throws SQLException {
                 try {
