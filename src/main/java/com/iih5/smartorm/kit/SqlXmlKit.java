@@ -90,12 +90,12 @@ public class SqlXmlKit {
 
     /**
      * 获取sql语句
-     * @param clazName 类package全路径
+     * @param classPath 类package全路径
      * @param methodName 方法名字
      * @return 返回配置的sql语句
      */
-    public String getSQL(String clazName,String methodName) {
-       Map<String,String> m= resourcesMap.get(clazName);
+    public static String getSQL(String classPath,String methodName) {
+       Map<String,String> m= resourcesMap.get(classPath);
         return  m.get(methodName);
     }
 
