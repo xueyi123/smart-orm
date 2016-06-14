@@ -229,4 +229,29 @@ public class Db {
     public  static <T> Page<Map> paginate(final Class<T> model,int pageNumber, int pageSize, String sql,Object[] paras,boolean isNotAttr) throws Exception {
         return  defaultExecutor.paginate(model,pageNumber,pageSize,sql,paras,isNotAttr);
     }
+    /**
+     * 多表分页查询
+     * @param pageNumber
+     * @param pageSize
+     * @param sql
+     * @param paras
+     * @param <T>
+     * @return
+     */
+    public static <T> Page<T> paginateMultiple(final  Class<T> model,int pageNumber, int pageSize, String sql, Object[] paras) throws Exception {
+        return defaultExecutor.paginateMultiple(model, pageNumber, pageSize, sql, paras);
+    }
+
+    /**
+     * 多表分页查询
+     * @param pageNumber
+     * @param pageSize
+     * @param sql
+     * @param paras
+     * @param isNotAttr
+     * @return
+     */
+    public static Page<Map> paginateMultiple(int pageNumber, int pageSize, String sql, Object[] paras,boolean isNotAttr) throws Exception {
+        return defaultExecutor.paginateMultiple(pageNumber, pageSize, sql, paras, isNotAttr);
+    }
 }

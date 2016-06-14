@@ -29,9 +29,9 @@ public class Page<T> implements Serializable {
 
 	private List<T> rows;				// 查询结果列表
 	private int pageNumber;			// 第几页
-	private int pageSize;			// 每一页的大小
-	private int totalPage;			// 总共有几页
-	private int total;				// 总共有几行
+	private int pageSize;			    // 每一页的大小
+	private long totalPage;			// 总共有几页
+	private long total;				// 总共有几行
 
 	/**
 	 * Constructor.
@@ -41,7 +41,7 @@ public class Page<T> implements Serializable {
 	 * @param totalPage the total page of paginate
 	 * @param totalRow the total row of paginate
 	 */
-	public Page(List<T> list, int pageNumber, int pageSize, int totalPage, int totalRow) {
+	public Page(List<T> list, int pageNumber, int pageSize, long totalPage, long totalRow) {
 		this.rows = list;
 		this.pageNumber = pageNumber;
 		this.pageSize = pageSize;
@@ -69,11 +69,11 @@ public class Page<T> implements Serializable {
 	/**
 	 * Return total page.
 	 */
-	public int getTotalPage() {
+	public long getTotalPage() {
 		return totalPage;
 	}
 
-	public int getTotal() {
+	public long getTotal() {
 		return total;
 	}
 

@@ -536,7 +536,6 @@ public abstract class Model<M extends Model> implements Serializable {
         return (Page<M>) Db.paginate(this.getUsefulClass(), pageNumber, pageSize, sql, paras);
     }
 
-
     /**
      * 分页查询
      *
@@ -554,44 +553,31 @@ public abstract class Model<M extends Model> implements Serializable {
         return (Page<Map>) Db.paginate(this.getUsefulClass(), pageNumber, pageSize, sql, paras,isMap);
     }
 
-
     /**
-     * 分页查询
-     *
-     * @param pageNumber 第几页
-     * @param pageSize   每一页的大小
-     * @param columns    字段名称，比如 columns="id,name,age"
-     * @param conditions 查询条件，比如 conditions="user_id=? and age=?"
-     * @param paras      查询参数
-     * @param sortColumn 排序字段
-     * @param sortType   排序类型（升或降）
-     * @return 返回对象列表
-     * @throws Exception
+     * 多表分页查询
+     * @param pageNumber
+     * @param pageSize
+     * @param sql
+     * @param paras
+     * @return
      */
-    public Page<M> paginateOrderBy(int pageNumber, int pageSize, String columns, String conditions, Object[] paras, String sortColumn, String sortType) throws Exception {
-        String sql = DefaultDialect.getDialect().forModelFindBy(table, columns, conditions) + " order by " + sortColumn + " " + sortType + " ";
-        return (Page<M>) Db.paginate(this.getUsefulClass(), pageNumber, pageSize, sql, paras);
+    public Page<M> paginateMultiple(int pageNumber, int pageSize, String sql, Object[] paras) throws Exception {
+        return (Page<M>) Db.paginateMultiple(this.getUsefulClass(), pageNumber, pageSize, sql, paras);
     }
 
-
     /**
-     * 分页查询(不包含attrs包裹属性)
-     *
-     * @param pageNumber 第几页
-     * @param pageSize   每一页的大小
-     * @param columns    字段名称，比如 columns="id,name,age"
-     * @param conditions 查询条件，比如 conditions="user_id=? and age=?"
-     * @param paras      查询参数
-     * @param sortColumn 排序字段
-     * @param sortType   排序类型（升或降）
-     * @param isMap      是否返回MAP格式 true 返回MAP格式(不包含attrs包裹属性)
-     * @return 返回对象列表
-     * @throws Exception
+     * 多表分页查询
+     * @param pageNumber
+     * @param pageSize
+     * @param sql
+     * @param paras
+     * @param isNotAttr 是否返回MAP格式 true 返回MAP格式(不包含attrs包裹属性)
+     * @return
      */
-    public Page<Map> paginateOrderBy(int pageNumber, int pageSize, String columns, String conditions, Object[] paras, String sortColumn, String sortType,boolean isMap) throws Exception {
-        String sql = DefaultDialect.getDialect().forModelFindBy(table, columns, conditions) + " order by " + sortColumn + " " + sortType + " ";
-        return (Page<Map>) Db.paginate(this.getUsefulClass(), pageNumber, pageSize, sql, paras,isMap);
+    public Page<Map> paginateMultiple(int pageNumber, int pageSize, String sql, Object[] paras,boolean isNotAttr) throws Exception {
+        return Db.paginateMultiple(pageNumber, pageSize, sql, paras, isNotAttr);
     }
+
 
     /**
      * @param o

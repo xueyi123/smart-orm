@@ -22,7 +22,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
-import javax.swing.*;
 import java.lang.reflect.Field;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -159,6 +158,24 @@ public class DbExecutor {
     }
 
     /**
+     * 获取Map格式列表(不包含attrs包裹属性)
+     * @param sql
+     * @return
+     */
+    public List<Map<String,Object>> findList(String sql,boolean isNotAttr){
+        return jdbc.queryForList(sql);
+    }
+
+    /**
+     * 获取Map格式列表(不包含attrs包裹属性)
+     * @param sql
+     * @param paras
+     * @return
+     */
+    public List<Map<String,Object>> findList(String sql, Object[] paras,boolean isNotAttr){
+        return jdbc.queryForList(sql,paras);
+    }
+    /**
      * 查找Model对象
      * @param sql
      * @param paras
@@ -266,41 +283,22 @@ public class DbExecutor {
         if (totalRow == 0) {
             return new Page<T>(new ArrayList<T>(0), pageNumber, pageSize, 0, 0);
         }
-        int totalPage = (int) (totalRow / pageSize);
+        long totalPage = (totalRow / pageSize);
         if (totalRow % pageSize != 0) {
             totalPage++;
         }
         if (pageNumber > totalPage) {
-            return new Page<T>(new ArrayList<T>(0), pageNumber, pageSize, totalPage, (int)totalRow);
+            return new Page<T>(new ArrayList<T>(0), pageNumber, pageSize, totalPage, totalRow);
         }
 
-        int offset = pageSize * (pageNumber - 1);
+        long offset = pageSize * (pageNumber - 1);
         StringBuilder ssql = new StringBuilder();
         ssql.append(sql).append(" ");
         ssql.append(" limit ").append(offset).append(", ").append(pageSize);
         List<T> list = findList(ssql.toString(),paras,model);
-        return new Page<T>(list, pageNumber, pageSize, totalPage, (int)totalRow);
+        return new Page<T>(list, pageNumber, pageSize, totalPage, totalRow);
     }
 
-
-    /**
-     * 获取Map格式列表(不包含attrs包裹属性)
-     * @param sql
-     * @return
-     */
-    public List<Map<String,Object>> findList(String sql,boolean isNotAttr){
-        return jdbc.queryForList(sql);
-    }
-
-    /**
-     * 获取Map格式列表(不包含attrs包裹属性)
-     * @param sql
-     * @param paras
-     * @return
-     */
-    public List<Map<String,Object>> findList(String sql, Object[] paras,boolean isNotAttr){
-        return jdbc.queryForList(sql,paras);
-    }
 
     /**
      * 分页查询(不包含attrs包裹属性)
@@ -319,21 +317,90 @@ public class DbExecutor {
         if (totalRow == 0) {
             return new Page<Map>(new ArrayList<Map>(0), pageNumber, pageSize, 0, 0);
         }
-        int totalPage = (int) (totalRow / pageSize);
+        long totalPage = (totalRow / pageSize);
         if (totalRow % pageSize != 0) {
             totalPage++;
         }
         if (pageNumber > totalPage) {
-            return new Page<Map>(new ArrayList<Map>(0), pageNumber, pageSize, totalPage, (int)totalRow);
+            return new Page<Map>(new ArrayList<Map>(0), pageNumber, pageSize, totalPage, totalRow);
         }
-        int offset = pageSize * (pageNumber - 1);
+        long offset = pageSize * (pageNumber - 1);
         StringBuilder ssql = new StringBuilder();
         ssql.append(sql).append(" ");
         ssql.append(" limit ").append(offset).append(", ").append(pageSize);
         List list = findList(ssql.toString(),paras,isNotAttr);
-        return new Page<Map>(list, pageNumber, pageSize, totalPage, (int)totalRow);
+        return new Page<Map>(list, pageNumber, pageSize, totalPage, totalRow);
     }
+
+    /**
+     * 多表分页查询
+     * @param pageNumber
+     * @param pageSize
+     * @param sql
+     * @param paras
+     * @param <T>
+     * @return
+     */
+    public <T> Page<T> paginateMultiple(final  Class<T> model,int pageNumber, int pageSize, String sql, Object[] paras) throws Exception {
+        long size= findBasicObject(sql,paras,Long.class);
+        long totalRow=size;
+        if (totalRow == 0) {
+            return new Page<T>(new ArrayList<T>(0), pageNumber, pageSize, 0, 0);
+        }
+        long totalPage = (totalRow / pageSize);
+        if (totalRow % pageSize != 0) {
+            totalPage++;
+        }
+        if (pageNumber > totalPage) {
+            return new Page<T>(new ArrayList<T>(0), pageNumber, pageSize, totalPage, totalRow);
+        }
+
+        long offset = pageSize * (pageNumber - 1);
+        StringBuilder ssql = new StringBuilder();
+        ssql.append(sql).append(" ");
+        ssql.append(" limit ").append(offset).append(", ").append(pageSize);
+        List<T> list = findList(ssql.toString(),paras,model);
+
+        return new Page<T>(list, pageNumber, pageSize, totalPage, totalRow);
+    }
+
+    /**
+     * 多表分页查询
+     * @param pageNumber
+     * @param pageSize
+     * @param sql
+     * @param paras
+     * @param isNotAttr
+     * @return
+     */
+    public Page<Map> paginateMultiple(int pageNumber, int pageSize, String sql, Object[] paras,boolean isNotAttr) throws Exception {
+        long size= findBasicObject(sql,paras,Long.class);
+        long totalRow=size;
+        if (totalRow == 0) {
+            return new Page<Map>(new ArrayList<Map>(0), pageNumber, pageSize, 0, 0);
+        }
+        long totalPage = (totalRow / pageSize);
+        if (totalRow % pageSize != 0) {
+            totalPage++;
+        }
+        if (pageNumber > totalPage) {
+            return new Page<Map>(new ArrayList<Map>(0), pageNumber, pageSize, totalPage, totalRow);
+        }
+
+        long offset = pageSize * (pageNumber - 1);
+        StringBuilder ssql = new StringBuilder();
+        ssql.append(sql).append(" ");
+        ssql.append(" limit ").append(offset).append(", ").append(pageSize);
+        List list = findList(ssql.toString(),paras,isNotAttr);
+        return new Page<Map>(list, pageNumber, pageSize, totalPage, totalRow);
+    }
+
 }
+
+
+
+
+
 
 
 
