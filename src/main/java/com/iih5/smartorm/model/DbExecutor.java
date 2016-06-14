@@ -89,8 +89,6 @@ public class DbExecutor {
     public  JdbcTemplate getJdbcTemplate() {
         return  getJdbcTemplate(defaultDataSource);
     }
-
-   // private Set<String> columnMeta= new HashSet<String>();
     /**
      * 查找Model对象列表
      * @param sql
@@ -159,6 +157,7 @@ public class DbExecutor {
     public <T> List<T> findList(String sql, final Class<T> model) throws Exception {
         return  findList(sql,NULL_PARA_ARRAY,model);
     }
+
     /**
      * 查找Model对象
      * @param sql
@@ -281,6 +280,58 @@ public class DbExecutor {
         ssql.append(" limit ").append(offset).append(", ").append(pageSize);
         List<T> list = findList(ssql.toString(),paras,model);
         return new Page<T>(list, pageNumber, pageSize, totalPage, (int)totalRow);
+    }
+
+
+    /**
+     * 获取Map格式列表(不包含attrs包裹属性)
+     * @param sql
+     * @return
+     */
+    public List<Map<String,Object>> findList(String sql,boolean isNotAttr){
+        return jdbc.queryForList(sql);
+    }
+
+    /**
+     * 获取Map格式列表(不包含attrs包裹属性)
+     * @param sql
+     * @param paras
+     * @return
+     */
+    public List<Map<String,Object>> findList(String sql, Object[] paras,boolean isNotAttr){
+        return jdbc.queryForList(sql,paras);
+    }
+
+    /**
+     * 分页查询(不包含attrs包裹属性)
+     * @param model
+     * @param pageNumber 第几页
+     * @param pageSize 每一页的大小
+     * @param sql 查询语句 (不能带limit,系统会自动带上)
+     * @param paras 查询参数
+     * @return the Page object
+     */
+    public <T> Page<Map> paginate(final  Class<T> model,int pageNumber, int pageSize, String sql,Object[] paras,boolean isNotAttr) throws Exception {
+        String tableName = StringKit.toTableNameByModel(model);
+        String countSQL= DefaultDialect.getDialect().forModelFindBy(tableName,"count(*)","");
+        long size= findBasicObject(countSQL,Long.class);
+        long totalRow=size;
+        if (totalRow == 0) {
+            return new Page<Map>(new ArrayList<Map>(0), pageNumber, pageSize, 0, 0);
+        }
+        int totalPage = (int) (totalRow / pageSize);
+        if (totalRow % pageSize != 0) {
+            totalPage++;
+        }
+        if (pageNumber > totalPage) {
+            return new Page<Map>(new ArrayList<Map>(0), pageNumber, pageSize, totalPage, (int)totalRow);
+        }
+        int offset = pageSize * (pageNumber - 1);
+        StringBuilder ssql = new StringBuilder();
+        ssql.append(sql).append(" ");
+        ssql.append(" limit ").append(offset).append(", ").append(pageSize);
+        List list = findList(ssql.toString(),paras,isNotAttr);
+        return new Page<Map>(list, pageNumber, pageSize, totalPage, (int)totalRow);
     }
 }
 

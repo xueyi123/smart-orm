@@ -118,6 +118,26 @@ public class Db {
     public static <T> List<T> findList(String sql,final Class<T> model) throws Exception {
         return  defaultExecutor.findList(sql,model);
     }
+
+    /**
+     * 获取Map格式列表(不包含attrs包裹属性)
+     * @param sql
+     * @return
+     */
+    public List<Map<String,Object>> findList(String sql,boolean isNotAttr){
+        return defaultExecutor.findList(sql,isNotAttr);
+    }
+
+    /**
+     * 获取Map格式列表(不包含attrs包裹属性)
+     * @param sql
+     * @param paras
+     * @return
+     */
+    public List<Map<String,Object>> findList(String sql, Object[] paras,boolean isNotAttr){
+        return defaultExecutor.findList(sql, paras,isNotAttr);
+    }
+
     /**
      * 查找基础对象
      * @param sql
@@ -195,5 +215,18 @@ public class Db {
      */
     public  static <T> Page<T> paginate(final Class<T> model,int pageNumber, int pageSize, String sql,Object[] paras) throws Exception {
         return  defaultExecutor.paginate(model,pageNumber,pageSize,sql,paras);
+    }
+
+    /**
+     * 分页查询(不包含attrs包裹属性)
+     * @param model
+     * @param pageNumber 第几页
+     * @param pageSize 每一页的大小
+     * @param sql 查询语句
+     * @param paras 查询参数
+     * @return the Page object
+     */
+    public  static <T> Page<Map> paginate(final Class<T> model,int pageNumber, int pageSize, String sql,Object[] paras,boolean isNotAttr) throws Exception {
+        return  defaultExecutor.paginate(model,pageNumber,pageSize,sql,paras,isNotAttr);
     }
 }

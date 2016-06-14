@@ -27,11 +27,11 @@ public class Page<T> implements Serializable {
 	
 	private static final long serialVersionUID = -5395997221963176643L;
 
-	private List<T> list;				// 查询结果列表
+	private List<T> rows;				// 查询结果列表
 	private int pageNumber;			// 第几页
-	private int pageSize;				// 每一页的大小
+	private int pageSize;			// 每一页的大小
 	private int totalPage;			// 总共有几页
-	private int totalRow;				// 总共有几行
+	private int total;				// 总共有几行
 
 	/**
 	 * Constructor.
@@ -42,20 +42,16 @@ public class Page<T> implements Serializable {
 	 * @param totalRow the total row of paginate
 	 */
 	public Page(List<T> list, int pageNumber, int pageSize, int totalPage, int totalRow) {
-		this.list = list;
+		this.rows = list;
 		this.pageNumber = pageNumber;
 		this.pageSize = pageSize;
 		this.totalPage = totalPage;
-		this.totalRow = totalRow;
+		this.total = totalRow;
 	}
 
-	/**
-	 * Return list of this page.
-	 */
-	public List<T> getList() {
-		return list;
+	public List<T> getRows() {
+		return rows;
 	}
-
 	/**
 	 * Return page number.
 	 */
@@ -77,11 +73,8 @@ public class Page<T> implements Serializable {
 		return totalPage;
 	}
 
-	/**
-	 * Return total row.
-	 */
-	public int getTotalRow() {
-		return totalRow;
+	public int getTotal() {
+		return total;
 	}
 
 	public boolean isFirstPage() {
