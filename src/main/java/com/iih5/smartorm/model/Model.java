@@ -251,6 +251,43 @@ public abstract class Model<M extends Model> implements Serializable {
         }
         return true;
     }
+    public boolean delete(String conditions) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("delete from ");
+        sql.append(table);
+        sql.append(" where ");
+        sql.append(conditions);
+        if (jdbc.update(sql.toString()) < 0) {
+            return false;
+        }
+        return true;
+    }
+    public boolean deleteById(long id) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("delete from ");
+        sql.append(table);
+        sql.append(" where id= ");
+        sql.append(id);
+        if (jdbc.update(sql.toString()) < 0) {
+            return false;
+        }
+        return true;
+    }
+    public boolean deleteByIds(List list) {
+        String st1=list.toString();
+        String arr = st1.substring(st1.indexOf("[")+1,st1.indexOf("]"));
+        StringBuilder sql = new StringBuilder();
+        sql.append("delete from ");
+        sql.append(table);
+        sql.append(" where id in ");
+        sql.append("(");
+        sql.append(arr);
+        sql.append(")");
+        if (jdbc.update(sql.toString()) < 0) {
+            return false;
+        }
+        return true;
+    }
 
     /**
      * 根据条件修改数据
