@@ -276,9 +276,11 @@ public class DbExecutor {
      * @return the Page object
      */
     public  <T> Page<T> paginate(final  Class<T> model,int pageNumber, int pageSize, String sql,Object[] paras) throws Exception {
-        String tableName = StringKit.toTableNameByModel(model);
-        String countSQL= DefaultDialect.getDialect().forModelFindBy(tableName,"count(*)","");
-        long size= findBasicObject(countSQL,Long.class);
+        StringBuffer cSql=new StringBuffer();
+        cSql.append("select count(*) from ( ");
+        cSql.append(sql);
+        cSql.append(" ) as t");
+        long size= findBasicObject(cSql.toString(),paras,Long.class);
         long totalRow=size;
         if (totalRow == 0) {
             return new Page<T>(new ArrayList<T>(0), pageNumber, pageSize, 0, 0);
