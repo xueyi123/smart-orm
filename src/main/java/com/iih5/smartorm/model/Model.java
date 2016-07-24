@@ -322,6 +322,10 @@ public abstract class Model<M extends Model> implements Serializable {
         }
     }
 
+    public boolean updateById(long id){
+        return update("id=?",new Object[]{id});
+    }
+
     /**
      * 删除属性值
      *
@@ -365,9 +369,9 @@ public abstract class Model<M extends Model> implements Serializable {
      * @param conditions     conditions 查询条件，比如 conditions="user_id=? and age=?"
      * @param conditionParas 查询条件对应的参数
      * @return 返回Model对象
-     * @throws Exception
+     * @
      */
-    public M find(String columns, String conditions, Object[] conditionParas) throws Exception {
+    public M find(String columns, String conditions, Object[] conditionParas)  {
         List<M> result = findList(columns, conditions, conditionParas);
         return result.size() > 0 ? result.get(0) : null;
     }
@@ -376,9 +380,9 @@ public abstract class Model<M extends Model> implements Serializable {
      * @param conditions     conditions 查询条件，比如 conditions="user_id=? and age=?"
      * @param conditionParas 查询条件对应的参数
      * @return 返回Model对象 1
-     * @throws Exception
+     * @
      */
-    public M find(String conditions, Object[] conditionParas) throws Exception {
+    public M find(String conditions, Object[] conditionParas)  {
         List<M> result = findList(conditions, conditionParas);
         return result.size() > 0 ? result.get(0) : null;
     }
@@ -386,11 +390,15 @@ public abstract class Model<M extends Model> implements Serializable {
     /**
      * @param conditions conditions 查询条件，比如 conditions="user_id=? and age=?"
      * @return 返回Model对象
-     * @throws Exception
+     * @
      */
-    public M find(String conditions) throws Exception {
+    public M find(String conditions)  {
         List<M> result = findList(conditions);
         return result.size() > 0 ? result.get(0) : null;
+    }
+
+    public M findById(long id){
+      return find("id="+id);
     }
 
     //  private Set<String> columnMeta= new HashSet<String>();
@@ -403,9 +411,9 @@ public abstract class Model<M extends Model> implements Serializable {
      * @param conditionParas 查询条件对应的参数
      * @param <T>
      * @return 返回Model对象列表
-     * @throws Exception
+     * @
      */
-    <T> List<T> queryList(String columns, String conditions, Object[] conditionParas) throws Exception {
+    <T> List<T> queryList(String columns, String conditions, Object[] conditionParas)  {
         String sql = DefaultDialect.getDialect().forModelFindBy(table, columns, conditions);
         final Set<String> columnMeta = new HashSet<String>();
         return jdbc.query(sql, conditionParas, new RowMapper<T>() {
@@ -452,9 +460,9 @@ public abstract class Model<M extends Model> implements Serializable {
      * @param conditions     查询条件，比如 conditions="user_id=? and age=?"
      * @param conditionParas 查询条件对应的参数
      * @return 返回Model对象列表
-     * @throws Exception
+     * @
      */
-    public List<M> findList(String columns, String conditions, Object[] conditionParas) throws Exception {
+    public List<M> findList(String columns, String conditions, Object[] conditionParas)  {
         return queryList(columns, conditions, conditionParas);
     }
 
@@ -464,18 +472,18 @@ public abstract class Model<M extends Model> implements Serializable {
      * @param conditions     查询条件，比如 conditions="user_id=? and age=?"
      * @param conditionParas 查询条件对应的参数
      * @return 返回Model对象列表
-     * @throws Exception
+     * @
      */
-    public List<M> findList(String conditions, Object[] conditionParas) throws Exception {
+    public List<M> findList(String conditions, Object[] conditionParas)  {
         return findList("*", conditions, conditionParas);
     }
 
     /**
      * @param conditions 查询条件，比如 conditions="user_id=? and age=?"
      * @return 返回Model对象列表
-     * @throws Exception
+     * @
      */
-    public List<M> findList(String conditions) throws Exception {
+    public List<M> findList(String conditions)  {
         return findList(conditions, NULL_PARA_ARRAY);
     }
 
@@ -509,9 +517,9 @@ public abstract class Model<M extends Model> implements Serializable {
      * @param classType      (Boolean,Int,Number,Float,String...)
      * @param <T>
      * @return 返回基础对象列表
-     * @throws Exception
+     * @
      */
-    public <T> List<T> findBasicObjectList(String column, String conditions, Object[] conditionParas, Class<T> classType) throws Exception {
+    public <T> List<T> findBasicObjectList(String column, String conditions, Object[] conditionParas, Class<T> classType)  {
         String sql = DefaultDialect.getDialect().forModelFindBy(table, column, conditions);
         return jdbc.queryForList(sql, conditionParas, classType);
     }
@@ -523,9 +531,9 @@ public abstract class Model<M extends Model> implements Serializable {
      * @param conditions 查询条件，比如 conditions="user_id=? and age=?"
      * @param classType  (Boolean,Int,Number,Float,String...)
      * @return 返回基础对象列表
-     * @throws Exception
+     * @
      */
-    public <T> List<T> findBasicObjectList(String column, String conditions, Class<T> classType) throws Exception {
+    public <T> List<T> findBasicObjectList(String column, String conditions, Class<T> classType)  {
         return findBasicObjectList(column, conditions, NULL_PARA_ARRAY, classType);
     }
 
@@ -539,7 +547,7 @@ public abstract class Model<M extends Model> implements Serializable {
      * @param classType      (Boolean,Int,Number,Float,String...)
      * @return 返回基础对象
      */
-    public <T> T findBasicObject(String column, String conditions, Object[] conditionParas, Class<T> classType) throws Exception {
+    public <T> T findBasicObject(String column, String conditions, Object[] conditionParas, Class<T> classType)  {
         String sql = DefaultDialect.getDialect().forModelFindBy(table, column, conditions);
         return jdbc.queryForObject(sql, conditionParas, classType);
     }
@@ -553,7 +561,7 @@ public abstract class Model<M extends Model> implements Serializable {
      * @param <T>
      * @return 返回基础对象
      */
-    public <T> T findBasicObject(String column, String conditions, Class<T> classType) throws Exception {
+    public <T> T findBasicObject(String column, String conditions, Class<T> classType)  {
         return (T) findBasicObject(column, conditions, NULL_PARA_ARRAY, classType);
     }
 
@@ -566,11 +574,16 @@ public abstract class Model<M extends Model> implements Serializable {
      * @param conditions 查询条件，比如 conditions="user_id=? and age=?"
      * @param paras      查询参数
      * @return 返回对象列表
-     * @throws Exception
+     * @
      */
-    public Page<M> paginate(int pageNumber, int pageSize, String columns, String conditions, Object[] paras) throws Exception {
+    public Page<M> paginate(int pageNumber, int pageSize, String columns, String conditions, Object[] paras)  {
         String sql = DefaultDialect.getDialect().forModelFindBy(table, columns, conditions);
-        return (Page<M>) Db.paginate(this.getUsefulClass(), pageNumber, pageSize, sql, paras);
+        try {
+            return (Page<M>) Db.paginate(this.getUsefulClass(), pageNumber, pageSize, sql, paras);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     /**
@@ -583,11 +596,16 @@ public abstract class Model<M extends Model> implements Serializable {
      * @param paras      查询参数
      * @param isMap      是否返回MAP格式 true 返回MAP格式(不包含attrs包裹属性)
      * @return 返回对象列表
-     * @throws Exception
+     * @
      */
-    public Page<Map> paginate(int pageNumber, int pageSize, String columns, String conditions, Object[] paras,boolean isMap) throws Exception {
+    public Page<Map> paginate(int pageNumber, int pageSize, String columns, String conditions, Object[] paras,boolean isMap)  {
         String sql = DefaultDialect.getDialect().forModelFindBy(table, columns, conditions);
-        return (Page<Map>) Db.paginate(this.getUsefulClass(), pageNumber, pageSize, sql, paras,isMap);
+        try {
+            return (Page<Map>) Db.paginate(this.getUsefulClass(), pageNumber, pageSize, sql, paras,isMap);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     /**
@@ -598,8 +616,13 @@ public abstract class Model<M extends Model> implements Serializable {
      * @param paras
      * @return
      */
-    public Page<M> paginateMultiple(int pageNumber, int pageSize, String sql, Object[] paras) throws Exception {
-        return (Page<M>) Db.paginateMultiple(this.getUsefulClass(), pageNumber, pageSize, sql, paras);
+    public Page<M> paginateMultiple(int pageNumber, int pageSize, String sql, Object[] paras)  {
+        try {
+            return (Page<M>) Db.paginateMultiple(this.getUsefulClass(), pageNumber, pageSize, sql, paras);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     /**
@@ -611,8 +634,13 @@ public abstract class Model<M extends Model> implements Serializable {
      * @param isNotAttr 是否返回MAP格式 true 返回MAP格式(不包含attrs包裹属性)
      * @return
      */
-    public Page<Map> paginateMultiple(int pageNumber, int pageSize, String sql, Object[] paras,boolean isNotAttr) throws Exception {
-        return Db.paginateMultiple(pageNumber, pageSize, sql, paras, isNotAttr);
+    public Page<Map> paginateMultiple(int pageNumber, int pageSize, String sql, Object[] paras,boolean isNotAttr)  {
+        try {
+            return Db.paginateMultiple(pageNumber, pageSize, sql, paras, isNotAttr);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 

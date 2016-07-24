@@ -78,9 +78,9 @@ public class Db {
      * @param model
      * @param <T>
      * @return
-     * @throws Exception
+     * @
      */
-    public static <T> T find(String sql, Object[] paras, final Class<T> model) throws Exception {
+    public static <T> T find(String sql, Object[] paras, final Class<T> model)  {
 
         return defaultExecutor.find(sql,paras,model);
     }
@@ -90,9 +90,9 @@ public class Db {
      * @param model
      * @param <T>
      * @return
-     * @throws Exception
+     * @
      */
-    public static <T> T find(String sql, final Class<T> model) throws Exception {
+    public static <T> T find(String sql, final Class<T> model)  {
         return defaultExecutor.find(sql,model);
     }
     /**
@@ -102,9 +102,9 @@ public class Db {
      * @param model
      * @param <T>
      * @return
-     * @throws Exception
+     * @
      */
-    public static <T> List<T> findList(String sql, Object[] paras, final Class<T> model) throws Exception {
+    public static <T> List<T> findList(String sql, Object[] paras, final Class<T> model)  {
         return  defaultExecutor.findList(sql,paras,model);
     }
     /**
@@ -113,9 +113,9 @@ public class Db {
      * @param model
      * @param <T>
      * @return
-     * @throws Exception
+     * @
      */
-    public static <T> List<T> findList(String sql,final Class<T> model) throws Exception {
+    public static <T> List<T> findList(String sql,final Class<T> model)  {
         return  defaultExecutor.findList(sql,model);
     }
 
@@ -124,7 +124,7 @@ public class Db {
      * @param sql
      * @return
      */
-    public List<Map<String,Object>> findList(String sql,boolean isNotAttr){
+    public static List<Map<String,Object>> findList(String sql,boolean isNotAttr){
         return defaultExecutor.findList(sql,isNotAttr);
     }
 
@@ -134,7 +134,7 @@ public class Db {
      * @param paras
      * @return
      */
-    public List<Map<String,Object>> findList(String sql, Object[] paras,boolean isNotAttr){
+    public static List<Map<String,Object>> findList(String sql, Object[] paras,boolean isNotAttr){
         return defaultExecutor.findList(sql, paras,isNotAttr);
     }
 
@@ -213,7 +213,7 @@ public class Db {
      * @param paras 查询参数
      * @return the Page object
      */
-    public  static <T> Page<T> paginate(final Class<T> model,int pageNumber, int pageSize, String sql,Object[] paras) throws Exception {
+    public  static <T> Page<T> paginate(final Class<T> model,int pageNumber, int pageSize, String sql,Object[] paras)  {
         return  defaultExecutor.paginate(model,pageNumber,pageSize,sql,paras);
     }
 
@@ -226,7 +226,7 @@ public class Db {
      * @param paras 查询参数
      * @return the Page object
      */
-    public  static <T> Page<Map> paginate(final Class<T> model,int pageNumber, int pageSize, String sql,Object[] paras,boolean isNotAttr) throws Exception {
+    public  static <T> Page<Map> paginate(final Class<T> model,int pageNumber, int pageSize, String sql,Object[] paras,boolean isNotAttr)  {
         return  defaultExecutor.paginate(model,pageNumber,pageSize,sql,paras,isNotAttr);
     }
     /**
@@ -238,7 +238,7 @@ public class Db {
      * @param <T>
      * @return
      */
-    public static <T> Page<T> paginateMultiple(final  Class<T> model,int pageNumber, int pageSize, String sql, Object[] paras) throws Exception {
+    public static <T> Page<T> paginateMultiple(final  Class<T> model,int pageNumber, int pageSize, String sql, Object[] paras)  {
         return defaultExecutor.paginateMultiple(model, pageNumber, pageSize, sql, paras);
     }
 
@@ -251,7 +251,7 @@ public class Db {
      * @param isNotAttr
      * @return
      */
-    public static Page<Map> paginateMultiple(int pageNumber, int pageSize, String sql, Object[] paras,boolean isNotAttr) throws Exception {
+    public static Page<Map> paginateMultiple(int pageNumber, int pageSize, String sql, Object[] paras,boolean isNotAttr)  {
         return defaultExecutor.paginateMultiple(pageNumber, pageSize, sql, paras, isNotAttr);
     }
 }

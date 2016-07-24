@@ -95,9 +95,9 @@ public class DbExecutor {
      * @param model
      * @param <T>
      * @return
-     * @throws Exception
+     * @
      */
-    <T> List<T> queryList(String sql, Object[] paras, final Class<T> model) throws Exception {
+    <T> List<T> queryList(String sql, Object[] paras, final Class<T> model)  {
         final Set<String> columnMeta= new HashSet<String>();
         return jdbc.query(sql, paras, new RowMapper<T>() {
             public T mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -140,9 +140,9 @@ public class DbExecutor {
      * @param model
      * @param <T>
      * @return
-     * @throws Exception
+     * @
      */
-    public <T> List<T> findList(String sql, Object[] paras, final Class<T> model) throws Exception {
+    public <T> List<T> findList(String sql, Object[] paras, final Class<T> model)  {
        return queryList(sql, paras, model);
     }
     /**
@@ -151,9 +151,9 @@ public class DbExecutor {
      * @param model
      * @param <T>
      * @return
-     * @throws Exception
+     * @
      */
-    public <T> List<T> findList(String sql, final Class<T> model) throws Exception {
+    public <T> List<T> findList(String sql, final Class<T> model)  {
         return  findList(sql,NULL_PARA_ARRAY,model);
     }
 
@@ -182,9 +182,9 @@ public class DbExecutor {
      * @param model
      * @param <T>
      * @return
-     * @throws Exception
+     * @
      */
-    public <T> T find(String sql, Object[] paras, final Class<T> model) throws Exception {
+    public <T> T find(String sql, Object[] paras, final Class<T> model)  {
         List<T> result = findList(sql,paras,model);
         return result.size() > 0 ? result.get(0) : null;
     }
@@ -194,9 +194,9 @@ public class DbExecutor {
      * @param model
      * @param <T>
      * @return
-     * @throws Exception
+     * @
      */
-    public <T> T find(String sql, final Class<T> model) throws Exception {
+    public <T> T find(String sql, final Class<T> model)  {
         return find(sql,NULL_PARA_ARRAY,model);
     }
     /**
@@ -275,7 +275,7 @@ public class DbExecutor {
      * @param paras 查询参数
      * @return the Page object
      */
-    public  <T> Page<T> paginate(final  Class<T> model,int pageNumber, int pageSize, String sql,Object[] paras) throws Exception {
+    public  <T> Page<T> paginate(final  Class<T> model,int pageNumber, int pageSize, String sql,Object[] paras)  {
         StringBuffer cSql=new StringBuffer();
         cSql.append("select count(*) from ( ");
         cSql.append(sql);
@@ -311,7 +311,7 @@ public class DbExecutor {
      * @param paras 查询参数
      * @return the Page object
      */
-    public <T> Page<Map> paginate(final  Class<T> model,int pageNumber, int pageSize, String sql,Object[] paras,boolean isNotAttr) throws Exception {
+    public <T> Page<Map> paginate(final  Class<T> model,int pageNumber, int pageSize, String sql,Object[] paras,boolean isNotAttr)  {
         StringBuffer cSql=new StringBuffer();
         cSql.append("select count(*) from ( ");
         cSql.append(sql);
@@ -345,7 +345,7 @@ public class DbExecutor {
      * @param <T>
      * @return
      */
-    public <T> Page<T> paginateMultiple(final  Class<T> model,int pageNumber, int pageSize, String sql, Object[] paras) throws Exception {
+    public <T> Page<T> paginateMultiple(final  Class<T> model,int pageNumber, int pageSize, String sql, Object[] paras)  {
         long size= findBasicObject(sql,paras,Long.class);
         long totalRow=size;
         if (totalRow == 0) {
@@ -377,7 +377,7 @@ public class DbExecutor {
      * @param isNotAttr
      * @return
      */
-    public Page<Map> paginateMultiple(int pageNumber, int pageSize, String sql, Object[] paras,boolean isNotAttr) throws Exception {
+    public Page<Map> paginateMultiple(int pageNumber, int pageSize, String sql, Object[] paras,boolean isNotAttr)  {
         long size= findBasicObject(sql,paras,Long.class);
         long totalRow=size;
         if (totalRow == 0) {
