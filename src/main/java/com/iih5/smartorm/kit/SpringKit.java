@@ -15,12 +15,10 @@ package com.iih5.smartorm.kit;
  * under the License.
  */
 
-import com.mchange.v2.c3p0.ComboPooledDataSource;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.jdbc.core.JdbcTemplate;
-import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
 import javax.sql.DataSource;
@@ -37,7 +35,7 @@ public class SpringKit implements ApplicationContextAware {
 		return appContext;
 	}
 	public static JdbcTemplate getJdbcTemplateByDataSource(String dataSourceName) {
-		ComboPooledDataSource dataSource= (ComboPooledDataSource)appContext.getBean(dataSourceName);
+		DataSource dataSource= (DataSource)appContext.getBean(dataSourceName);
 		return  new JdbcTemplate(dataSource);
 	}
 	public static JedisPool getJedisPool(String jedisPool) {

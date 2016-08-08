@@ -14,14 +14,13 @@ package com.iih5.smartorm.model;
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-import com.iih5.smartorm.dialect.DefaultDialect;
+
 import com.iih5.smartorm.kit.SpringKit;
-import com.iih5.smartorm.kit.StringKit;
-import com.mchange.v2.c3p0.ComboPooledDataSource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
+import javax.sql.DataSource;
 import java.lang.reflect.Field;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -56,7 +55,7 @@ public class DbExecutor {
      */
     public static DbExecutor use() {
         if (defaultDataSource==null){
-            String[] dbs = SpringKit.getApplicationContext().getBeanNamesForType(ComboPooledDataSource.class);
+            String[] dbs = SpringKit.getApplicationContext().getBeanNamesForType(DataSource.class);
             defaultDataSource = dbs[0];
         }
         DbExecutor executor =map.get(defaultDataSource);
