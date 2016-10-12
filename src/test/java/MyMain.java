@@ -5,7 +5,8 @@ public class MyMain {
         System.out.println("hello world");
         SpringContext.getInstace();
         System.out.println("开始。。。");
-        ModelGenerator.generator("parkdb","com.tthd.model.generator","D:/ideaProject/smart-orm/src/main/java");
+//        ModelGenerator.isHashPrefix=false;
+        ModelGenerator.generator("TESTDB","com.tthd.model.generator","D:/ideaProject/smart-orm/src/main/java");
         System.out.println("。。。结束");
 
 

@@ -15,6 +15,7 @@ package com.iih5.smartorm.generator;
  * under the License.
  */
 
+import com.alibaba.fastjson.JSON;
 import com.iih5.smartorm.kit.StringKit;
 
 import java.io.File;
@@ -23,17 +24,8 @@ import java.io.IOException;
 import java.util.List;
 
 public class ModelGenerator {
-
-    /**
-     * 1 获取TableMeta List
-     * 2 生成 java
-     * 3 保存 文件
-     *
-     *
-     *
-     *
-     */
-
+    //表是否有前缀
+    public static boolean isHashPrefix = true;
     /**
      * 生成Model文件，输出目录与包名与 Model相同
      * @param dataSource 数据源名称（在spring.xml配置）
@@ -55,7 +47,7 @@ public class ModelGenerator {
      * @param javaOutputDir   java 输出目录
      */
     public static  void  generator(String db, String modelPackageName, String javaOutputDir) throws Exception {
-        List<TableMeta> tableMetaList= TableMetaTool.findTableMetaList(db);
+        List<TableMeta> tableMetaList= TableMetaTool.findTableMetaList(null,db);
         for (TableMeta table:tableMetaList) {
             build(table,modelPackageName,javaOutputDir);
         }
@@ -75,7 +67,7 @@ public class ModelGenerator {
     protected static void writeToFile(String content,TableMeta tableMeta,String outputDir) throws IOException {
         File dir = new File(outputDir);
         dir.mkdirs();
-        String target = outputDir + File.separator + StringKit.toModelNameByTable(tableMeta.name) + "Model.java";
+        String target = outputDir + File.separator + StringKit.firstCharToUpperCase(StringKit.toModelNameByTable(tableMeta.name)) + "Model.java";
         FileWriter fw = new FileWriter(target);
         try {
             fw.write(content);

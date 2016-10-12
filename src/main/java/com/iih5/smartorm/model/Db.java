@@ -37,6 +37,9 @@ public class Db {
      * @return
      */
     public static  DbExecutor use(String dataSource){
+        if (dataSource == null){
+            return defaultExecutor;
+        }
         return DbExecutor.use(dataSource);
     }
 

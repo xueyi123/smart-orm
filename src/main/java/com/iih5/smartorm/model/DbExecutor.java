@@ -16,12 +16,15 @@ package com.iih5.smartorm.model;
  */
 
 import com.iih5.smartorm.kit.SpringKit;
+import com.iih5.smartorm.kit.StringKit;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
 import javax.sql.DataSource;
+import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -98,6 +101,7 @@ public class DbExecutor {
      */
     <T> List<T> queryList(String sql, Object[] paras, final Class<T> model)  {
         final Set<String> columnMeta= new HashSet<String>();
+        final Map<String,String> fieldMap = new HashMap<String, String>();
         return jdbc.query(sql, paras, new RowMapper<T>() {
             public T mapRow(ResultSet rs, int rowNum) throws SQLException {
                 try {
@@ -110,11 +114,24 @@ public class DbExecutor {
                     Model mModel = (Model) model.newInstance();
                     Field[] fields = mModel.getClass().getFields();
                     if (0 < fields.length) {
-                        for (Field f : fields) {
-                            if (columnMeta.contains(f.getName())){
-                                f.set(mModel,rs.getObject(f.getName()));
+//                        for (Field f : fields) {
+//                            if (columnMeta.contains(f.getName())){
+//                                f.set(mModel,rs.getObject(f.getName()));
+//                            }
+//                        }
+                        //------
+                        for (Field fd:fields) {
+                            String column = fieldMap.get(fd.getName());
+                            if (column == null){
+                                String tmpN = StringKit.toUnderscoreName(fd.getName());
+                                fieldMap.put(column,tmpN);
                             }
+                            Object value = rs.getObject(column);
+                            PropertyDescriptor pd = new PropertyDescriptor(fd.getName(),mModel.getClass());
+                            Method method = pd.getWriteMethod();
+                            method.invoke(mModel,value);
                         }
+                        //------
                     }else {
                         ResultSetMetaData rad = rs.getMetaData();
                         int columnCount = rad.getColumnCount();

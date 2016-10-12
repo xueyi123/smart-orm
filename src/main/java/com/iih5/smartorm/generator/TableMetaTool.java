@@ -1,27 +1,12 @@
-package com.iih5.smartorm.generator;/*
- * Copyright 2016 xueyi (1581249005@qq.com)
- *
- * The SmartORM Project licenses this file to you under the Apache License,
- * version 2.0 (the "License"); you may not use this file except in compliance
- * with the License. You may obtain a copy of the License at:
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations
- * under the License.
- */
-
+package com.iih5.smartorm.generator;
+import com.alibaba.fastjson.JSON;
 import com.iih5.smartorm.model.Db;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.sql.*;
+import java.util.*;
 
 public class TableMetaTool {
+
     /**
      * 从db获取库表和字段信息
      * @param dataSource
@@ -31,65 +16,54 @@ public class TableMetaTool {
      */
     public static List<TableMeta> findTableMetaList(String dataSource, String dbName) throws Exception{
         List<TableMeta> tableList = new ArrayList<TableMeta>();
-        Set<String> sets= new HashSet<String>();
-        String sql="select TABLE_NAME,DATA_TYPE,COLUMN_TYPE,COLUMN_NAME,COLUMN_COMMENT from information_schema.columns where table_schema=? ";
-        List<MetaModel> list = Db.use(dataSource).findList(sql,new Object[]{dbName}, MetaModel.class);
-        for (MetaModel gModel:list) {
-            sets.add(gModel.getStr("TABLE_NAME"));
-        }
+        List<String> sets = Db.use(dataSource).findBasicObjectList("show tables ;", String.class);
         for (String name:sets) {
-            tableList.add(toTableMeta(name,list));
-        }
-        return tableList;
-    }
-    /**
-     * 从db获取库表和字段信息
-     * @param dbName
-     * @return
-     * @throws Exception
-     */
-    public static List<TableMeta> findTableMetaList(String dbName) throws Exception{
-        List<TableMeta> tableList = new ArrayList<TableMeta>();
-        Set<String> sets= new HashSet<String>();
-        String sql="select TABLE_NAME,DATA_TYPE,COLUMN_TYPE,COLUMN_NAME,COLUMN_COMMENT from information_schema.columns where table_schema=? ";
-        List<MetaModel> list = Db.findList(sql,new Object[]{dbName}, MetaModel.class);
-        for (MetaModel gModel:list) {
-            sets.add(gModel.getStr("TABLE_NAME"));
-        }
-        for (String name:sets) {
-            tableList.add(toTableMeta(name,list));
+            String sql = " show full columns from "+name+" ;";
+            TableMeta meta = new TableMeta();
+            meta.name = name;
+            Map<String,String> javaTypeMap = toJavaTypeMap(name);
+            List<Map<String,Object>> mpList = Db.findList(sql,true);
+            for (Map<String,Object> mp:mpList) {
+                ColumnMeta columnMeta= new ColumnMeta();
+                columnMeta.name = (String) mp.get("Field");
+                columnMeta.comment = (String) mp.get("Comment");
+                columnMeta.dataType = javaTypeMap.get(columnMeta.name);
+                meta.columnMetas.add(columnMeta);
+            }
+            tableList.add(meta);
         }
         return tableList;
     }
     /**
      * 组合TableMeta
      * @param tableName
-     * @param list
      * @return
      */
-    private static TableMeta toTableMeta(String tableName, List<MetaModel> list){
-        TableMeta tableMeta=new TableMeta();
-        tableMeta.name=tableName;
-        for (MetaModel model:list) {
-            if (tableName.equals(model.getStr("TABLE_NAME"))){
-                ColumnMeta columnMeta= new ColumnMeta();
-                columnMeta.dataType=model.getStr("DATA_TYPE");
-                columnMeta.name=  model.getStr("COLUMN_NAME");
-                columnMeta.comment=model.getStr("COLUMN_COMMENT");
-                String tmp= model.getStr("COLUMN_TYPE");
-                if (tmp.indexOf("(")<0||tmp.indexOf(")")<0){
-                    columnMeta.typeLen=0;
-                }else if (tmp.contains("unsigned")&& tmp.contains("int")){
-                   columnMeta.typeLen=14;
-                } else {
-                    String typeLen= tmp.substring(tmp.indexOf("(")+1,tmp.indexOf(")"));
-                    if (!typeLen.contains(",")){
-                        columnMeta.typeLen=Integer.valueOf(typeLen);
-                    }
-                }
-                tableMeta.columnMetas.add(columnMeta);
+    private static  Map<String,String> toJavaTypeMap(String tableName)  {
+        Connection connection = null;
+        Statement stm = null;
+        ResultSet rs = null;
+        try {
+            Map<String,String> javaType = new HashMap<String, String>();
+            String sql="select * from "+tableName+" where 1=2 ";
+            connection = Db.getJdbcTemplate().getDataSource().getConnection();
+            stm =  connection.createStatement();
+            rs = stm.executeQuery(sql);
+            ResultSetMetaData rmd = rs.getMetaData();
+            for (int i=1; i<= rmd.getColumnCount(); i++) {
+                javaType.put(rmd.getColumnLabel(i),rmd.getColumnClassName(i));
+            }
+            return javaType;
+        }catch (Exception e){
+            e.printStackTrace();
+        }finally {
+            try {
+                connection.close();
+                rs.close();
+                stm.close();
+            } catch (SQLException e) {
             }
         }
-        return tableMeta;
+        return null;
     }
 }

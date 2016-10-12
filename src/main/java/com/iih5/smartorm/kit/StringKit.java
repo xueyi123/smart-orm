@@ -17,6 +17,7 @@
 package com.iih5.smartorm.kit;
 
 import com.iih5.smartorm.generator.JavaType;
+import com.iih5.smartorm.generator.ModelGenerator;
 import com.iih5.smartorm.model.Db;
 
 /**
@@ -190,8 +191,11 @@ public class StringKit {
 	 * @return
      */
 	public static String toModelNameByTable(String tableName){
-		int index= tableName.indexOf("_");
-		tableName=tableName.substring(index);
+
+		if (ModelGenerator.isHashPrefix){
+			int index= tableName.indexOf("_");
+			tableName=tableName.substring(index);
+		}
 		return toCamelCaseName(tableName);
 	}
 }
