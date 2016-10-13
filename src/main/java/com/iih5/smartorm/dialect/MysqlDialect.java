@@ -45,7 +45,7 @@ public class MysqlDialect implements Dialect {
         if (conditions==null || conditions.equals("")){
             return  sql.toString();
         }
-        sql.append(" where ");
+        sql.append(" where 1=1 ");
         sql.append(conditions);
         return sql.toString();
     }
@@ -54,7 +54,7 @@ public class MysqlDialect implements Dialect {
         StringBuilder sql = new StringBuilder(45);
         sql.append("delete from ");
         sql.append(tableName);
-        sql.append(" where ");
+        sql.append(" where 1=1 ");
         sql.append(conditions);
         return sql.toString();
     }
@@ -100,19 +100,7 @@ public class MysqlDialect implements Dialect {
                 paras.add(colName);
             }
         }
-        sql.append(" where ");
+        sql.append(" where 1=1 ");
         sql.append(conditions);
     }
-
-    public static void main(String[] args) {
-        String regex="[0-9\\+\\-\\*\\/\\(\\)]*";
-        String d="value100";
-        Pattern p= Pattern.compile(regex);//"[+-/*]"
-      //  ②建造一个匹配器
-        Matcher m = p.matcher(d);
-      //  ③进行判断，得到结果
-    }
-
-
-
 }

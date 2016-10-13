@@ -71,6 +71,11 @@ public class ModelBuilder {
         constructBuilder.append("    public "+clas+"(){");
         constructBuilder.append("\n       this.table=\""+tableName+"\";");
         constructBuilder.append("\n    }");
+
+        constructBuilder.append("\n    public "+clas+"(Object cdtBean){");
+        constructBuilder.append("\n       super(cdtBean);\n");
+        constructBuilder.append("       this.table=\""+tableName+"\";");
+        constructBuilder.append("\n    }");
         return (this);
     }
     private ModelBuilder createColumn(String type, String column, String comment){

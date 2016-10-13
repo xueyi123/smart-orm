@@ -1,6 +1,9 @@
 package com.iih5.smartorm.model;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.annotation.JSONField;
+import com.alibaba.fastjson.serializer.PropertyFilter;
+import com.alibaba.fastjson.serializer.SimplePropertyPreFilter;
 import com.iih5.smartorm.dialect.DefaultDialect;
 import com.iih5.smartorm.kit.StringKit;
 import org.springframework.beans.BeanUtils;
@@ -19,21 +22,19 @@ import java.util.*;
 public abstract class Model<M extends Model> implements Serializable {
     private static final long serialVersionUID = -990334519496260591L;
     JdbcTemplate jdbc = null;
-    protected String table = "";//表名
+    protected String table;//表名
+    @JSONField(serialize = false)
     private Map<String, Object> attrs = new HashMap<String, Object>();
     private Set<String> modifyFlag = new HashSet<String>();
     private Object[] NULL_PARA_ARRAY = new Object[]{};
-
     public Model() {
         this.table = StringKit.toTableNameByModel(this.getClass());
         this.jdbc = getJdbc();
     }
-
-    public Model(Object srcBean) {
-        BeanUtils.copyProperties(srcBean,this);
+    public Model(Object copyBean) {
+        BeanUtils.copyProperties(copyBean,this);
         this.jdbc = getJdbc();
     }
-
     /**
      * 获取JDBC
      *
@@ -68,6 +69,40 @@ public abstract class Model<M extends Model> implements Serializable {
         return (M) this;
     }
     /**
+     * 增加( + )
+     * @param attr
+     * @param value
+     */
+    public  M  incr(String attr, Object value){
+        String number = String.valueOf(value);
+        if (number.substring(0,1).equals("-")){
+            set(attr,attr+number);
+        }else {
+            set(attr,attr+"+"+number);
+        }
+        return (M)this;
+    }
+    /**
+     * 乘（ * ）
+     * @param attr
+     * @param value
+     */
+    public  M  mult(String attr, Object value){
+        String number = String.valueOf(value);
+        set(attr,attr+"*"+number);
+        return (M)this;
+    }
+    /**
+     * 除 （ / ）
+     * @param attr
+     * @param value
+     */
+    public  M  minus(String attr, Object value){
+        String number = String.valueOf(value);
+        set(attr,attr+"/"+number);
+        return (M)this;
+    }
+    /**
      * @param attr
      * @param <T>
      * @return
@@ -75,7 +110,9 @@ public abstract class Model<M extends Model> implements Serializable {
     public <T> T get(String attr) {
         return (T) (attrs.get(attr));
     }
-
+    public Map<String, Object> getAttrs(){
+        return attrs;
+    }
     /**
      * 添加保存到数据库
      *
@@ -112,7 +149,7 @@ public abstract class Model<M extends Model> implements Serializable {
     public Long insertAndReturnId(){
         if (insert()){
             String sql="SELECT LAST_INSERT_ID();";
-            return  Db.query(sql,new Object[]{},Long.class);
+            return  Db.findBasicObject(sql,new Object[]{},Long.class);
         }
         return null;
     }
@@ -134,11 +171,8 @@ public abstract class Model<M extends Model> implements Serializable {
         return true;
     }
     public boolean delete(Object cdtBean) {
-        if (conditionValues == null || conditionValues.length == 0) {
-            return false;
-        }
-        String sql = DefaultDialect.getDialect().deleteByCondition(table, conditions);
-        if (jdbc.update(sql, conditionValues) < 0) {
+        String sql = "delete from "+table+" where 1=1 "+StringKit.beanToSqlConditionStr(cdtBean);
+        if (jdbc.update(sql) < 0) {
             return false;
         }
         return true;
@@ -182,9 +216,6 @@ public abstract class Model<M extends Model> implements Serializable {
     }
     public boolean deleteByIds(Object... ids) {
         String str = JSON.toJSONString(ids) ;
-        return deleteByIds(str);
-    }
-    private boolean deleteByIds(String str) {
         String arr = str.substring(str.indexOf("[") + 1, str.indexOf("]"));
         StringBuilder sql = new StringBuilder();
         sql.append("delete from ");
@@ -198,9 +229,6 @@ public abstract class Model<M extends Model> implements Serializable {
         }
         return true;
     }
-
-
-
     /**
      * 根据条件修改数据
      *
@@ -208,7 +236,7 @@ public abstract class Model<M extends Model> implements Serializable {
      * @param conditionValues 比如：new Object[]{1000,'hill'};
      * @return true if delete succeed otherwise false
      */
-    public boolean update(String conditions, Object[] conditionValues) {
+    public boolean updateBy(String conditions, Object[] conditionValues) {
         try {
             Field[] attr = this.getClass().getFields();
             for (Field f : attr) {
@@ -233,69 +261,76 @@ public abstract class Model<M extends Model> implements Serializable {
             return true;
         }
     }
-    public boolean update(String cdtBean) {
+    public boolean updateBy(String conditions){
+       return updateBy(conditions,new Object[]{});
+    }
+    public boolean updateById(Object id){
+        return updateBy("id=?",new Object[]{id});
+    }
+    public boolean updateBy(Object cdtBean) {
         try {
-            Field[] attr = this.getClass().getFields();
-            for (Field f : attr) {
-                Object value = f.get(this);
+            Field[] fields = this.getClass().getDeclaredFields();
+            for (Field field : fields) {
+                PropertyDescriptor pd = new PropertyDescriptor(field.getName(),this.getClass());
+                Method methodReader = pd.getReadMethod();
+                Object value= methodReader.invoke(this);
                 if (value != null) {
-                    attrs.put(f.getName(), value);
-                    modifyFlag.add(f.getName());
+                    attrs.put(StringKit.toUnderscoreName(field.getName()), value);
+                    modifyFlag.add(StringKit.toUnderscoreName(field.getName()));
                 }
+            }
+            if (getModifyFlag().isEmpty()) {
+                return false;
+            }
+            StringBuilder sql = new StringBuilder();
+            DefaultDialect.getDialect().forModelUpdate(table, StringKit.beanToSqlConditionStr(cdtBean), attrs, getModifyFlag(), sql);
+            if (jdbc.update(sql.toString()) < 0) {
+                return false;
+            } else {
+                return true;
             }
         } catch (Exception e) {
             e.printStackTrace();
-            return false;
         }
-        if (getModifyFlag().isEmpty()) {
-            return false;
-        }
-        StringBuilder sql = new StringBuilder();
-        DefaultDialect.getDialect().forModelUpdate(table, conditions, attrs, getModifyFlag(), sql);
-        if (jdbc.update(sql.toString(), conditionValues) < 0) {
-            return false;
-        } else {
-            return true;
-        }
+        return false;
     }
 
-    public boolean updateById(Long id){
-        return update("id=?",new Object[]{id});
-    }
-    /**
-     * 替换
-     * @param id
-     * @return
-     */
-    public  boolean  replaceById(Long id){
-        boolean rt = true;
-        if (findById(id) == null){
-            rt = save();
-        }else {
-            rt = updateById(id);
-        }
-        return rt;
-    }
     /**
      * 替换
      * @param condition
      * @param paras
      * @return
      */
-    public  boolean  replaceBy(String condition, Object[] paras){
+    public boolean replaceBy(String condition, Object[] paras){
         boolean rt = true;
         if (findBy(condition,paras) == null){
-            rt = save();
+            rt = insert();
         }else {
             rt = updateBy(condition, paras);
         }
         return rt;
     }
-
-    /**
-     * 清空所有的属性值
-     * @return
-     */
+    public boolean replaceBy(String condition){
+        return replaceBy(condition,new Object[]{});
+    }
+    public boolean replaceById(Object id){
+        boolean rt = true;
+        if (findById(id) == null){
+            rt = insert();
+        }else {
+            rt = updateById(id);
+        }
+        return rt;
+    }
+    public boolean replaceBy(Object cdtBean){
+        boolean rt = true;
+        if (findBy(StringKit.beanToSqlConditionStr(cdtBean)) == null){
+            rt = insert();
+        }else {
+            rt =  updateBy(cdtBean);
+        }
+        return rt;
+    }
 
 
     /**
@@ -305,9 +340,12 @@ public abstract class Model<M extends Model> implements Serializable {
      * @return 返回Model对象
      * @
      */
-    public M find(String columns, String conditions, Object[] conditionParas)  {
-        List<M> result = findList(columns, conditions, conditionParas);
-        return result.size() > 0 ? result.get(0) : null;
+    public M findBy(String columns, String conditions, Object[] conditionParas)  {
+        List<M> result = findListBy(columns, conditions, conditionParas);
+        if (result.size()>1){
+            throw new DataException("返回多于1条数据");
+        }
+        return  result.get(0);
     }
     /**
      * @param conditions     conditions 查询条件，比如 conditions="user_id=? and age=?"
@@ -315,21 +353,33 @@ public abstract class Model<M extends Model> implements Serializable {
      * @return 返回Model对象 1
      * @
      */
-    public M find(String conditions, Object[] conditionParas)  {
-        List<M> result = findList(conditions, conditionParas);
-        return result.size() > 0 ? result.get(0) : null;
+    public M findBy(String conditions, Object[] conditionParas)  {
+        return findBy("*",conditions,conditionParas);
     }
     /**
      * @param conditions conditions 查询条件，比如 conditions="user_id=? and age=?"
      * @return 返回Model对象
      * @
      */
-    public M find(String conditions)  {
-        List<M> result = findList(conditions);
-        return result.size() > 0 ? result.get(0) : null;
+    public M findBy(String conditions)  {
+        return findBy(conditions,new Object[]{});
     }
-    public M findById(long id){
-      return find("id="+id);
+    public M findById(Object id){
+      return findBy("id=?",new Object[]{id});
+    }
+    /**
+     * 条件用bean对象表示
+     * @param cdtBean
+     * @return
+     */
+    public M findBy(Object cdtBean){
+       List<M> list = findList(cdtBean);
+        if (list.size()>1){
+            throw new DataException("返回多于1条数据");
+        }else if (list.size()==0){
+            return null;
+        }
+        return list.get(0);
     }
     /**
      * 查找Model对象列表
@@ -348,37 +398,29 @@ public abstract class Model<M extends Model> implements Serializable {
         return jdbc.query(sql, conditionParas, new RowMapper<T>() {
             public T mapRow(ResultSet rs, int rowNum) throws SQLException {
                 try {
-                    if (columnMeta.size() == 0) {
+                    if (columnMeta.size() <= 0) {
                         for (int i = 0; i < rs.getMetaData().getColumnCount(); i++) {
                             String column = rs.getMetaData().getColumnLabel(i + 1);
                             columnMeta.add(column);
                         }
                     }
                     Model<?> mModel = getUsefulClass().newInstance();
-                    Field[] fields = mModel.getClass().getFields();
+                    Field[] fields = mModel.getClass().getDeclaredFields();
                     if (fields.length > 0) {
-//                        for (Field f : fields) {
-//                            if (columnMeta.contains(f.getName())) {
-//                                f.set(mModel, rs.getObject(f.getName()));
-//                            }
-//                        }
-                        //------
-                        for (Field fd:fields) {
-                            String column = fieldMap.get(fd.getName());
-                            if (column == null){
-                               String tmpN = StringKit.toUnderscoreName(fd.getName());
-                               fieldMap.put(column,tmpN);
+                        for (Field field:fields) {
+                            Object value = rs.getObject(field.getName());
+                            String property = fieldMap.get(field.getName());
+                            if (property == null){
+                                property = StringKit.toCamelCaseName(field.getName());
+                                fieldMap.put(field.getName(),property);
                             }
-                            Object value = rs.getObject(column);
-                            PropertyDescriptor pd = new PropertyDescriptor(fd.getName(),mModel.getClass());
+                            PropertyDescriptor pd = new PropertyDescriptor(property,mModel.getClass());
                             Method method = pd.getWriteMethod();
                             method.invoke(mModel,value);
                         }
-                        //------
                     } else {
                         ResultSetMetaData rsmd = rs.getMetaData();
                         int columnCount = rsmd.getColumnCount();
-                        Map<String, Object> attrs = mModel.getAttrs();
                         for (int i = 1; i <= columnCount; i++) {
                             Object value = rs.getObject(i);
                             if (value != null) {
@@ -394,6 +436,7 @@ public abstract class Model<M extends Model> implements Serializable {
             }
         });
     }
+
     /**
      * 查找Model对象列表
      *
@@ -403,8 +446,8 @@ public abstract class Model<M extends Model> implements Serializable {
      * @return 返回Model对象列表
      * @
      */
-    public List<M> findList(String columns, String conditions, Object[] conditionParas)  {
-        return queryList(columns, conditions, conditionParas);
+    public List<M> findListBy(String columns, String conditions, Object[] conditionParas)  {
+        return queryList(columns, " and "+conditions, conditionParas);
     }
     /**
      * 查找Model对象列表
@@ -414,87 +457,46 @@ public abstract class Model<M extends Model> implements Serializable {
      * @return 返回Model对象列表
      * @
      */
-    public List<M> findList(String conditions, Object[] conditionParas)  {
-        return findList("*", conditions, conditionParas);
+    public List<M> findListBy(String conditions, Object[] conditionParas)  {
+        return findListBy("*", conditions, conditionParas);
     }
     /**
      * @param conditions 查询条件，比如 conditions="user_id=? and age=?"
      * @return 返回Model对象列表
      * @
      */
-    public List<M> findList(String conditions)  {
-        return findList(conditions, NULL_PARA_ARRAY);
-    }
-    /**
-     * 获取Map格式列表(不包含attrs包裹属性)
-     *
-     * @param sql
-     * @return
-     */
-    public List<Map<String, Object>> findList(String sql,boolean isNotAttr) {
-        return jdbc.queryForList(sql);
-    }
-    /**
-     * 获取Map格式列表(不包含attrs包裹属性)
-     *
-     * @param sql
-     * @param paras
-     * @return
-     */
-    public List<Map<String, Object>> findList(String sql, Object[] paras,boolean isNotAttr) {
-        return jdbc.queryForList(sql, paras);
+    public List<M> findListBy(String conditions)  {
+        return findListBy(conditions, NULL_PARA_ARRAY);
     }
     /**
      * 查找基础对象列表(Boolean,Int,Number,Float,String...)
      *
-     * @param column         字段名称，比如 columns="id,name,age"
+     * @param columns         字段名称，比如 columns="id,name,age"
      * @param conditions     查询条件，比如 conditions="user_id=? and age=?"
      * @param conditionParas 查询条件对应的参数
-     * @param classType      (Boolean,Int,Number,Float,String...)
+     * @param claszz      (Boolean,Int,Number,Float,String...)
      * @param <T>
      * @return 返回基础对象列表
      * @
      */
-    public <T> List<T> findBasicObjectList(String column, String conditions, Object[] conditionParas, Class<T> classType)  {
-        String sql = DefaultDialect.getDialect().forModelFindBy(table, column, conditions);
-        return jdbc.queryForList(sql, conditionParas, classType);
+    public <T> List<T> findListBy(String columns, String conditions, Object[] conditionParas, Class<T> claszz)  {
+        String sql = DefaultDialect.getDialect().forModelFindBy(table, columns, conditions);
+        return jdbc.queryForList(sql, conditionParas, claszz);
     }
     /**
      * 查找基础对象列表(Boolean,Int,Number,Float,String...)
      *
-     * @param column     字段名称，比如 columns="id,name,age"
+     * @param columns     字段名称，比如 columns="id,name,age"
      * @param conditions 查询条件，比如 conditions="user_id=? and age=?"
-     * @param classType  (Boolean,Int,Number,Float,String...)
+     * @param claszz  (Boolean,Int,Number,Float,String...)
      * @return 返回基础对象列表
      * @
      */
-    public <T> List<T> findBasicObjectList(String column, String conditions, Class<T> classType)  {
-        return findBasicObjectList(column, conditions, NULL_PARA_ARRAY, classType);
+    public <T> List<T> findObjectList(String columns, String conditions, Class<T> claszz)  {
+        return findListBy(columns, conditions, NULL_PARA_ARRAY, claszz);
     }
-    /**
-     * 查找基础对象(Boolean,Int,Number,Float,String...)
-     *
-     * @param column         字段名称，比如 columns="id,name,age"
-     * @param conditions     查询条件，比如 conditions="user_id=? and age=?"
-     * @param conditionParas 查询条件对应的参数
-     * @param classType      (Boolean,Int,Number,Float,String...)
-     * @return 返回基础对象
-     */
-    public <T> T findBasicObject(String column, String conditions, Object[] conditionParas, Class<T> classType)  {
-        String sql = DefaultDialect.getDialect().forModelFindBy(table, column, conditions);
-        return jdbc.queryForObject(sql, conditionParas, classType);
-    }
-    /**
-     * 查找基础对象 (Boolean,Int,Number,Float,String...)
-     *
-     * @param column     字段名称，比如 columns="id,name,age"
-     * @param conditions 查询条件，比如 conditions="user_id=? and age=?"
-     * @param classType  (Boolean,Int,Number,Float,String...)
-     * @param <T>
-     * @return 返回基础对象
-     */
-    public <T> T findBasicObject(String column, String conditions, Class<T> classType)  {
-        return (T) findBasicObject(column, conditions, NULL_PARA_ARRAY, classType);
+    public List<M> findList(Object cdtBean){
+        return queryList("*",StringKit.beanToSqlConditionStr(cdtBean),new Object[]{});
     }
     /**
      * 分页查询
@@ -516,27 +518,7 @@ public abstract class Model<M extends Model> implements Serializable {
         }
         return null;
     }
-    /**
-     * 分页查询
-     *
-     * @param pageNumber 第几页
-     * @param pageSize   每一页的大小
-     * @param columns    字段名称，比如 columns="id,name,age"
-     * @param conditions 查询条件，比如 conditions="user_id=? and age=?"
-     * @param paras      查询参数
-     * @param isMap      是否返回MAP格式 true 返回MAP格式(不包含attrs包裹属性)
-     * @return 返回对象列表
-     * @
-     */
-    public Page<Map> paginate(int pageNumber, int pageSize, String columns, String conditions, Object[] paras,boolean isMap)  {
-        String sql = DefaultDialect.getDialect().forModelFindBy(table, columns, conditions);
-        try {
-            return (Page<Map>) Db.paginate(this.getUsefulClass(), pageNumber, pageSize, sql, paras,isMap);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
+
     /**
      * @param o
      * @return
@@ -565,8 +547,7 @@ public abstract class Model<M extends Model> implements Serializable {
         if (this.getClass().getFields().length > 0) {
             return JSON.toJSONString(this);
         }
-        Map<String, Object> ddd = this.getAttrs();
-        return JSON.toJSONString(this.getAttrs());
+        return JSON.toJSONString(attrs);
     }
     /**
      * @return

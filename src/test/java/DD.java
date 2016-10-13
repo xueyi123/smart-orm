@@ -1,13 +1,16 @@
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SimplePropertyPreFilter;
 
 import java.sql.Date;
 import java.sql.Timestamp;
 
 public class DD {
     public static void main(String[] args) {
-        Date date = new Date(System.currentTimeMillis());
-        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-        System.out.println(date.toString());
-        System.out.println(timestamp.toString());
+        BeanT t = new BeanT();
+        t.setName("ddddddd");
+        t.setId(1000);
+        SimplePropertyPreFilter filter = new SimplePropertyPreFilter(BeanT.class, "name");
+
+        System.out.println( JSON.toJSONString(t, filter));
     }
 }
