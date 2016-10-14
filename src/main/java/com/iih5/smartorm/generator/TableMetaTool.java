@@ -10,11 +10,10 @@ public class TableMetaTool {
     /**
      * 从db获取库表和字段信息
      * @param dataSource
-     * @param dbName
      * @return
      * @throws Exception
      */
-    public static List<TableMeta> findTableMetaList(String dataSource, String dbName) throws Exception{
+    public static List<TableMeta> findTableMetaList(String dataSource) throws Exception{
         List<TableMeta> tableList = new ArrayList<TableMeta>();
         List<String> sets = Db.use(dataSource).findBasicObjectList("show tables ;", String.class);
         for (String name:sets) {

@@ -29,28 +29,35 @@ public class ModelGenerator {
     /**
      * 生成Model文件，输出目录与包名与 Model相同
      * @param dataSource 数据源名称（在spring.xml配置）
-     * @param db 数据库名
      * @param modelPackageName model 包名
      * @param javaOutputDir   java 输出目录
      */
-    public static  void  generator(String dataSource,String db, String modelPackageName, String javaOutputDir) throws Exception {
-        List<TableMeta> tableMetaList= TableMetaTool.findTableMetaList(dataSource,db);
+    public static  void  generator(String dataSource, String modelPackageName, String javaOutputDir) throws Exception {
+        List<TableMeta> tableMetaList= TableMetaTool.findTableMetaList(dataSource);
         for (TableMeta table:tableMetaList) {
             build(table,modelPackageName,javaOutputDir);
         }
     }
-    /**
-     * 生成Model文件，输出目录与包名与 Model相同
-     *
-     * @param db 数据库名
-     * @param modelPackageName model 包名
-     * @param javaOutputDir   java 输出目录
-     */
-    public static  void  generator(String db, String modelPackageName, String javaOutputDir) throws Exception {
-        List<TableMeta> tableMetaList= TableMetaTool.findTableMetaList(null,db);
+    public static  void  generator(String modelPackageName, String javaOutputDir) throws Exception {
+        List<TableMeta> tableMetaList= TableMetaTool.findTableMetaList(null);
         for (TableMeta table:tableMetaList) {
             build(table,modelPackageName,javaOutputDir);
         }
+    }
+
+    /**
+     *
+     * @param modelPackageName
+     * @param projectType 0=eclipse,1=idea
+     */
+    public static  void  generator(String modelPackageName,int projectType) throws Exception {
+        String relativelyPath=System.getProperty("user.dir");
+        if (projectType==1){
+            relativelyPath = relativelyPath+"/src/main/java";
+        }else {
+            relativelyPath = relativelyPath +"/src";
+        }
+        generator(modelPackageName,relativelyPath);
     }
     private static void build(TableMeta tableMeta, String modelPackageName, String javaOutputDir)throws Exception {
         StringBuffer absoluteDir= new StringBuffer();
