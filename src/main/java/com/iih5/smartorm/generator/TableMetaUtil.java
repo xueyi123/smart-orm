@@ -5,7 +5,7 @@ import com.iih5.smartorm.model.Db;
 import java.sql.*;
 import java.util.*;
 
-public class TableMetaTool {
+public class TableMetaUtil {
 
     /**
      * 从db获取库表和字段信息

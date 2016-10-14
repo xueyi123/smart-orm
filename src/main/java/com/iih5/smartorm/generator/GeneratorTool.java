@@ -15,7 +15,6 @@ package com.iih5.smartorm.generator;
  * under the License.
  */
 
-import com.alibaba.fastjson.JSON;
 import com.iih5.smartorm.kit.StringKit;
 
 import java.io.File;
@@ -23,7 +22,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
-public class ModelGenerator {
+public class GeneratorTool {
     //表是否有前缀
     public static boolean isHashPrefix = true;
     /**
@@ -33,13 +32,13 @@ public class ModelGenerator {
      * @param javaOutputDir   java 输出目录
      */
     public static  void  generator(String dataSource, String modelPackageName, String javaOutputDir) throws Exception {
-        List<TableMeta> tableMetaList= TableMetaTool.findTableMetaList(dataSource);
+        List<TableMeta> tableMetaList= TableMetaUtil.findTableMetaList(dataSource);
         for (TableMeta table:tableMetaList) {
             build(table,modelPackageName,javaOutputDir);
         }
     }
     public static  void  generator(String modelPackageName, String javaOutputDir) throws Exception {
-        List<TableMeta> tableMetaList= TableMetaTool.findTableMetaList(null);
+        List<TableMeta> tableMetaList= TableMetaUtil.findTableMetaList(null);
         for (TableMeta table:tableMetaList) {
             build(table,modelPackageName,javaOutputDir);
         }

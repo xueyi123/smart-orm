@@ -16,7 +16,7 @@
 
 package com.iih5.smartorm.kit;
 
-import com.iih5.smartorm.generator.ModelGenerator;
+import com.iih5.smartorm.generator.GeneratorTool;
 import com.iih5.smartorm.model.Db;
 
 import java.beans.PropertyDescriptor;
@@ -195,7 +195,7 @@ public class StringKit {
      * @return
      */
     public static String toModelNameByTable(String tableName) {
-        if (ModelGenerator.isHashPrefix) {
+        if (GeneratorTool.isHashPrefix) {
             int index = tableName.indexOf("_");
             tableName = tableName.substring(index);
         }
