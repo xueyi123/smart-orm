@@ -503,14 +503,26 @@ public abstract class Model<M extends Model> implements Serializable {
      * @return 返回对象列表
      * @
      */
-    public Page<M> paginate(int pageNumber, int pageSize, String columns, String conditions, Object[] paras)  {
-        String sql = DefaultDialect.getDialect().forModelFindBy(table, columns, conditions);
-        try {
-            return (Page<M>) Db.paginate(this.getUsefulClass(), pageNumber, pageSize, sql, paras);
-        } catch (Exception e) {
-            e.printStackTrace();
+    public Page<M> paginate(String columns, String conditions, Object[] paras)  {
+        long size= findListCountBy(conditions,paras);
+        long totalRow=size;
+        if (totalRow == 0) {
+            return new Page<M>(new ArrayList<M>(0), pageNumber, pageSize, 0, 0);
         }
-        return null;
+        long totalPage = (totalRow / pageSize);
+        if (totalRow % pageSize != 0) {
+            totalPage++;
+        }
+        if (pageNumber > totalPage) {
+            return new Page<M>(new ArrayList<M>(0), pageNumber, pageSize, totalPage, totalRow);
+        }
+
+        long offset = pageSize * (pageNumber - 1);
+        StringBuilder ssql = new StringBuilder();
+        ssql.append(sql).append(" ");
+        ssql.append(" limit ").append(offset).append(", ").append(pageSize);
+        List<M> list = findList(ssql.toString(),paras,model);
+        return new Page<M>(list, pageNumber, pageSize, totalPage, totalRow);
     }
 
     /**
