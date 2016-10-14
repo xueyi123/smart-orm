@@ -218,9 +218,9 @@ public class StringKit {
                 if (value != null) {
                     if (value instanceof Integer || value instanceof Double || value instanceof BigDecimal ||
                             value instanceof Float || value instanceof Long || value instanceof BigInteger) {
-                        condition.append(" and " + field.getName() + "=" + value);
+                        condition.append(" and " + StringKit.toUnderscoreName(field.getName()) + "=" + value);
                     } else {
-                        condition.append(" and " + field.getName() + "='" + value + "'");
+                        condition.append(" and " + StringKit.toUnderscoreName(field.getName()) + "='" + value + "'");
                     }
                 }
             }

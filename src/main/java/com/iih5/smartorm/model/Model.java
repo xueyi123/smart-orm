@@ -10,9 +10,11 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
+import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.io.Serializable;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -20,8 +22,9 @@ import java.sql.SQLException;
 import java.util.*;
 
 public abstract class Model<M extends Model> implements Serializable {
-    private static final long serialVersionUID = -990334519496260591L;
     JdbcTemplate jdbc = null;
+    private  StringBuffer limit = new StringBuffer();
+    private  StringBuffer order = new StringBuffer();
     protected String table;//表名
     @JSONField(serialize = false)
     private Map<String, Object> attrs = new HashMap<String, Object>();
@@ -69,7 +72,7 @@ public abstract class Model<M extends Model> implements Serializable {
         return (M) this;
     }
     /**
-     * 增加( + )
+     * 增加( + )  比如：incr("count",-100);
      * @param attr
      * @param value
      */
@@ -83,7 +86,7 @@ public abstract class Model<M extends Model> implements Serializable {
         return (M)this;
     }
     /**
-     * 乘（ * ）
+     * 乘（ * ）比如：mult("count",*100);
      * @param attr
      * @param value
      */
@@ -93,7 +96,7 @@ public abstract class Model<M extends Model> implements Serializable {
         return (M)this;
     }
     /**
-     * 除 （ / ）
+     * 除 （ / ） 比如：minus("count",/100);
      * @param attr
      * @param value
      */
@@ -102,16 +105,20 @@ public abstract class Model<M extends Model> implements Serializable {
         set(attr,attr+"/"+number);
         return (M)this;
     }
-    /**
-     * @param attr
-     * @param <T>
-     * @return
-     */
-    public <T> T get(String attr) {
-        return (T) (attrs.get(attr));
-    }
     public Map<String, Object> getAttrs(){
         return attrs;
+    }
+    private void beanToAttrs() throws IntrospectionException, InvocationTargetException, IllegalAccessException {
+        Field[] fields = this.getClass().getDeclaredFields();
+        for (Field field : fields) {
+            PropertyDescriptor pd = new PropertyDescriptor(field.getName(),this.getClass());
+            Method methodReader = pd.getReadMethod();
+            Object value= methodReader.invoke(this);
+            if (value != null) {
+                attrs.put(StringKit.toUnderscoreName(field.getName()), value);
+                modifyFlag.add(StringKit.toUnderscoreName(field.getName()));
+            }
+        }
     }
     /**
      * 添加保存到数据库
@@ -120,15 +127,7 @@ public abstract class Model<M extends Model> implements Serializable {
      */
     public boolean insert() {
         try {
-            Field[] fields = this.getClass().getDeclaredFields();
-            for (Field field : fields) {
-                PropertyDescriptor pd = new PropertyDescriptor(field.getName(),this.getClass());
-                Method methodReader = pd.getReadMethod();
-                Object value= methodReader.invoke(this);
-                if (value != null) {
-                    attrs.put(StringKit.toUnderscoreName(field.getName()), value);
-                }
-            }
+            beanToAttrs();
             StringBuilder sql = new StringBuilder();
             List<Object> paras = new ArrayList<Object>();
             DefaultDialect.getDialect().forModelSave(table, attrs, sql, paras);
@@ -143,7 +142,7 @@ public abstract class Model<M extends Model> implements Serializable {
         }
     }
     /**
-     * 保存并返回自增长ID
+     * 保存并返回mysql自增长ID
      * @return
      */
     public Long insertAndReturnId(){
@@ -238,14 +237,7 @@ public abstract class Model<M extends Model> implements Serializable {
      */
     public boolean updateBy(String conditions, Object[] conditionValues) {
         try {
-            Field[] attr = this.getClass().getFields();
-            for (Field f : attr) {
-                Object value = f.get(this);
-                if (value != null) {
-                    attrs.put(f.getName(), value);
-                    modifyFlag.add(f.getName());
-                }
-            }
+           beanToAttrs();
         } catch (Exception e) {
             e.printStackTrace();
             return false;
@@ -254,7 +246,7 @@ public abstract class Model<M extends Model> implements Serializable {
             return false;
         }
         StringBuilder sql = new StringBuilder();
-        DefaultDialect.getDialect().forModelUpdate(table, conditions, attrs, getModifyFlag(), sql);
+        DefaultDialect.getDialect().forModelUpdate(table, " and "+conditions, attrs, getModifyFlag(), sql);
         if (jdbc.update(sql.toString(), conditionValues) < 0) {
             return false;
         } else {
@@ -269,16 +261,7 @@ public abstract class Model<M extends Model> implements Serializable {
     }
     public boolean updateBy(Object cdtBean) {
         try {
-            Field[] fields = this.getClass().getDeclaredFields();
-            for (Field field : fields) {
-                PropertyDescriptor pd = new PropertyDescriptor(field.getName(),this.getClass());
-                Method methodReader = pd.getReadMethod();
-                Object value= methodReader.invoke(this);
-                if (value != null) {
-                    attrs.put(StringKit.toUnderscoreName(field.getName()), value);
-                    modifyFlag.add(StringKit.toUnderscoreName(field.getName()));
-                }
-            }
+            beanToAttrs();
             if (getModifyFlag().isEmpty()) {
                 return false;
             }
@@ -324,7 +307,7 @@ public abstract class Model<M extends Model> implements Serializable {
     }
     public boolean replaceBy(Object cdtBean){
         boolean rt = true;
-        if (findBy(StringKit.beanToSqlConditionStr(cdtBean)) == null){
+        if (findBy(cdtBean) == null){
             rt = insert();
         }else {
             rt =  updateBy(cdtBean);
@@ -344,6 +327,8 @@ public abstract class Model<M extends Model> implements Serializable {
         List<M> result = findListBy(columns, conditions, conditionParas);
         if (result.size()>1){
             throw new DataException("返回多于1条数据");
+        }if (result.size()==0){
+            return null;
         }
         return  result.get(0);
     }
@@ -373,7 +358,7 @@ public abstract class Model<M extends Model> implements Serializable {
      * @return
      */
     public M findBy(Object cdtBean){
-       List<M> list = findList(cdtBean);
+       List<M> list = findListBy(cdtBean);
         if (list.size()>1){
             throw new DataException("返回多于1条数据");
         }else if (list.size()==0){
@@ -391,8 +376,14 @@ public abstract class Model<M extends Model> implements Serializable {
      * @return 返回Model对象列表
      * @
      */
-    <T> List<T> queryList(String columns, String conditions, Object[] conditionParas)  {
+    protected  <T> List<T> queryList(String columns, String conditions, Object[] conditionParas)  {
         String sql = DefaultDialect.getDialect().forModelFindBy(table, columns, conditions);
+        if (order.length()>0){
+            sql = sql+" "+order.toString();
+        }
+        if (limit.length()>0){
+            sql = sql+" "+limit.toString();
+        }
         final Set<String> columnMeta = new HashSet<String>();
         final Map<String,String> fieldMap = new HashMap<String, String>();
         return jdbc.query(sql, conditionParas, new RowMapper<T>() {
@@ -408,15 +399,17 @@ public abstract class Model<M extends Model> implements Serializable {
                     Field[] fields = mModel.getClass().getDeclaredFields();
                     if (fields.length > 0) {
                         for (Field field:fields) {
-                            Object value = rs.getObject(field.getName());
-                            String property = fieldMap.get(field.getName());
-                            if (property == null){
-                                property = StringKit.toCamelCaseName(field.getName());
-                                fieldMap.put(field.getName(),property);
+                            String column = fieldMap.get(field.getName());
+                            if (column == null){
+                                column = StringKit.toUnderscoreName(field.getName());
+                                fieldMap.put(field.getName(),column);
                             }
-                            PropertyDescriptor pd = new PropertyDescriptor(property,mModel.getClass());
-                            Method method = pd.getWriteMethod();
-                            method.invoke(mModel,value);
+                            if (columnMeta.contains(column)){
+                                Object value = rs.getObject(column);
+                                PropertyDescriptor pd = new PropertyDescriptor(field.getName(),mModel.getClass());
+                                Method method = pd.getWriteMethod();
+                                method.invoke(mModel,value);
+                            }
                         }
                     } else {
                         ResultSetMetaData rsmd = rs.getMetaData();
@@ -436,7 +429,6 @@ public abstract class Model<M extends Model> implements Serializable {
             }
         });
     }
-
     /**
      * 查找Model对象列表
      *
@@ -468,36 +460,38 @@ public abstract class Model<M extends Model> implements Serializable {
     public List<M> findListBy(String conditions)  {
         return findListBy(conditions, NULL_PARA_ARRAY);
     }
-    /**
-     * 查找基础对象列表(Boolean,Int,Number,Float,String...)
-     *
-     * @param columns         字段名称，比如 columns="id,name,age"
-     * @param conditions     查询条件，比如 conditions="user_id=? and age=?"
-     * @param conditionParas 查询条件对应的参数
-     * @param claszz      (Boolean,Int,Number,Float,String...)
-     * @param <T>
-     * @return 返回基础对象列表
-     * @
-     */
-    public <T> List<T> findListBy(String columns, String conditions, Object[] conditionParas, Class<T> claszz)  {
-        String sql = DefaultDialect.getDialect().forModelFindBy(table, columns, conditions);
-        return jdbc.queryForList(sql, conditionParas, claszz);
-    }
-    /**
-     * 查找基础对象列表(Boolean,Int,Number,Float,String...)
-     *
-     * @param columns     字段名称，比如 columns="id,name,age"
-     * @param conditions 查询条件，比如 conditions="user_id=? and age=?"
-     * @param claszz  (Boolean,Int,Number,Float,String...)
-     * @return 返回基础对象列表
-     * @
-     */
-    public <T> List<T> findObjectList(String columns, String conditions, Class<T> claszz)  {
-        return findListBy(columns, conditions, NULL_PARA_ARRAY, claszz);
-    }
-    public List<M> findList(Object cdtBean){
+    public List<M> findListBy(Object cdtBean){
         return queryList("*",StringKit.beanToSqlConditionStr(cdtBean),new Object[]{});
     }
+    /**
+     * 查找列表多少行
+     * @param conditions
+     * @param conditionParas
+     * @return
+     */
+    public Long findListCountBy(String conditions, Object[] conditionParas){
+        String sql = DefaultDialect.getDialect().forModelFindBy(table, " count(*) ", conditions);
+        return  jdbc.queryForObject(sql,conditionParas, Long.class);
+    }
+    /**
+     * 查找列表多少行
+     * @param cdtBean
+     * @return
+     */
+    public Long findListCountBy(Object cdtBean){
+        String sql = "select count(*) from "+table+" where 1=1 "+StringKit.beanToSqlConditionStr(cdtBean);
+        return jdbc.queryForObject(sql, NULL_PARA_ARRAY, Long.class);
+    }
+
+    public M limit(Long start,Long size){
+        limit.append(" limit ").append(start).append(", ").append(size);
+        return (M) this;
+    }
+    public M order(String column,String sortType){
+        order.append(" order by ").append(column).append(" ").append(sortType);
+        return (M) this;
+    }
+
     /**
      * 分页查询
      *

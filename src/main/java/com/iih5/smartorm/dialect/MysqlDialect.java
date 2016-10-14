@@ -16,6 +16,8 @@
 
 package com.iih5.smartorm.dialect;
 
+import com.iih5.smartorm.kit.StringKit;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -76,28 +78,27 @@ public class MysqlDialect implements Dialect {
     }
 
     public void forModelUpdate(String tableName,String conditions, Map<String, Object> attrs, Set<String> modifyFlag, StringBuilder sql) {
-        List<Object> paras= new ArrayList<Object>();
+        boolean isFirst = true;
         sql.append("update ").append(tableName).append(" set ");
         Pattern p= Pattern.compile("[0-9\\+\\-\\*\\/\\(\\)]*");
         for (Entry<String, Object> e : attrs.entrySet()) {
-            String colName = e.getKey();
-            if (modifyFlag.contains(colName)) {
-                if (paras.size() > 0) {
+            String property = e.getKey();
+            if (modifyFlag.contains(property)) {
+                if (!isFirst){
                     sql.append(", ");
                 }
                 if (e.getValue() instanceof String){
-                    String d=String.valueOf(e.getValue());
-                    String dr= ((String) e.getValue()).replace(colName,"");
+                    String dr= ((String) e.getValue()).replace(property,"");
                     Matcher m = p.matcher(dr);
                     if (m.matches()){
-                        sql.append(" ").append(colName).append(" = "+e.getValue());
+                        sql.append(" ").append( property).append(" = "+e.getValue());
                     }else {
-                        sql.append(" ").append(colName).append(" = '"+e.getValue()+"'");
+                        sql.append(" ").append( property).append(" = '"+e.getValue()+"'");
                     }
                 }else {
-                    sql.append(" ").append(colName).append(" = "+e.getValue());
+                    sql.append(" ").append( property).append(" = "+e.getValue());
                 }
-                paras.add(colName);
+                isFirst=false;
             }
         }
         sql.append(" where 1=1 ");
