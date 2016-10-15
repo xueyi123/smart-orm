@@ -1,19 +1,4 @@
 package com.iih5.smartorm.model;
-/*
- * Copyright 2016 xueyi (1581249005@qq.com)
- *
- * The SmartORM Project licenses this file to you under the Apache License,
- * version 2.0 (the "License"); you may not use this file except in compliance
- * with the License. You may obtain a copy of the License at:
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations
- * under the License.
- */
 
 import com.alibaba.fastjson.JSON;
 
@@ -28,10 +13,10 @@ public class Page<T> implements Serializable {
 	private static final long serialVersionUID = -5395997221963176643L;
 
 	private List<T> rows;				// 查询结果列表
-	private int pageNumber;			// 第几页
-	private int pageSize;			    // 每一页的大小
-	private long totalPage;			// 总共有几页
-	private long total;				// 总共有几行
+	private Long pageNumber;		// 第几页
+	private Integer pageSize;			// 每一页的大小
+	private Long totalPage;		// 总共有几页
+	private Long total;				// 总共有几行
 
 	/**
 	 * Constructor.
@@ -41,7 +26,7 @@ public class Page<T> implements Serializable {
 	 * @param totalPage the total page of paginate
 	 * @param totalRow the total row of paginate
 	 */
-	public Page(List<T> list, int pageNumber, int pageSize, long totalPage, long totalRow) {
+	public Page(List<T> list, Long pageNumber, Integer pageSize, Long totalPage, Long totalRow) {
 		this.rows = list;
 		this.pageNumber = pageNumber;
 		this.pageSize = pageSize;
@@ -55,7 +40,7 @@ public class Page<T> implements Serializable {
 	/**
 	 * Return page number.
 	 */
-	public int getPageNumber() {
+	public Long getPageNumber() {
 		return pageNumber;
 	}
 

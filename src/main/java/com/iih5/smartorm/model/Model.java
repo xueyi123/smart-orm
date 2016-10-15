@@ -2,8 +2,6 @@ package com.iih5.smartorm.model;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
-import com.alibaba.fastjson.serializer.PropertyFilter;
-import com.alibaba.fastjson.serializer.SimplePropertyPreFilter;
 import com.iih5.smartorm.dialect.DefaultDialect;
 import com.iih5.smartorm.kit.StringKit;
 import org.springframework.beans.BeanUtils;
@@ -24,6 +22,8 @@ import java.util.*;
 public abstract class Model<M extends Model> implements Serializable {
     JdbcTemplate jdbc = null;
     private  StringBuffer limit = new StringBuffer();
+    private  Long pageNumber;
+    private  Integer pageSize;
     private  StringBuffer order = new StringBuffer();
     protected String table;//表名
     @JSONField(serialize = false)
@@ -483,8 +483,14 @@ public abstract class Model<M extends Model> implements Serializable {
         return jdbc.queryForObject(sql, NULL_PARA_ARRAY, Long.class);
     }
 
-    public M limit(Long start,Long size){
-        limit.append(" limit ").append(start).append(", ").append(size);
+    public M limit(Long pageNum,Integer pageSize){
+        this.pageNumber = pageNum;
+        if (pageNum<1){
+            this.pageNumber = 1L;
+        }
+        this.pageSize = pageSize;
+        Long start = (pageNum-1)*pageSize;
+        limit.append(" limit ").append(start).append(", ").append(this.pageSize);
         return (M) this;
     }
     public M order(String column,String sortType){
@@ -495,8 +501,8 @@ public abstract class Model<M extends Model> implements Serializable {
     /**
      * 分页查询
      *
-     * @param pageNumber 第几页
-     * @param pageSize   每一页的大小
+//     * @param pageNumber 第几页
+//     * @param pageSize   每一页的大小
      * @param columns    字段名称，比如 columns="id,name,age"
      * @param conditions 查询条件，比如 conditions="user_id=? and age=?"
      * @param paras      查询参数
@@ -504,24 +510,38 @@ public abstract class Model<M extends Model> implements Serializable {
      * @
      */
     public Page<M> paginate(String columns, String conditions, Object[] paras)  {
-        long size= findListCountBy(conditions,paras);
-        long totalRow=size;
+        Long size = findListCountBy(conditions,paras);
+        Long totalRow = size;
         if (totalRow == 0) {
-            return new Page<M>(new ArrayList<M>(0), pageNumber, pageSize, 0, 0);
+            return new Page<M>(new ArrayList<M>(0), this.pageNumber, pageSize, 0L, 0L);
         }
-        long totalPage = (totalRow / pageSize);
+        Long totalPage =  (totalRow / pageSize);
         if (totalRow % pageSize != 0) {
             totalPage++;
         }
         if (pageNumber > totalPage) {
             return new Page<M>(new ArrayList<M>(0), pageNumber, pageSize, totalPage, totalRow);
         }
-
-        long offset = pageSize * (pageNumber - 1);
-        StringBuilder ssql = new StringBuilder();
-        ssql.append(sql).append(" ");
-        ssql.append(" limit ").append(offset).append(", ").append(pageSize);
-        List<M> list = findList(ssql.toString(),paras,model);
+        List<M> list =findListBy(columns, conditions, paras);
+        return new Page<M>(list, pageNumber, pageSize, totalPage, totalRow);
+    }
+    public Page<M> paginate( String conditions, Object[] paras)  {
+        return  paginate("*",conditions,paras);
+    }
+    public Page<M> paginate(Object ctdBean)  {
+        Long size = findListCountBy(ctdBean);
+        Long totalRow = size;
+        if (totalRow == 0) {
+            return new Page<M>(new ArrayList<M>(0), this.pageNumber, pageSize, 0L, 0L);
+        }
+        Long totalPage =  (totalRow / pageSize);
+        if (totalRow % pageSize != 0) {
+            totalPage++;
+        }
+        if (pageNumber > totalPage) {
+            return new Page<M>(new ArrayList<M>(0), pageNumber, pageSize, totalPage, totalRow);
+        }
+        List<M> list =findListBy(ctdBean);
         return new Page<M>(list, pageNumber, pageSize, totalPage, totalRow);
     }
 
