@@ -15,13 +15,19 @@ public class TableMetaUtil {
      */
     public static List<TableMeta> findTableMetaList(String dataSource) throws Exception{
         List<TableMeta> tableList = new ArrayList<TableMeta>();
-        List<String> sets = Db.use(dataSource).findBasicObjectList("show tables ;", String.class);
+        List<String> sets = null;
+        if (dataSource !=null){
+            sets = Db.use(dataSource).findList("show tables ;",new Object[]{} ,String.class);
+        }else {
+            sets =  Db.findList("show tables ;",new Object[]{} ,String.class);
+        }
+
         for (String name:sets) {
             String sql = " show full columns from "+name+" ;";
             TableMeta meta = new TableMeta();
             meta.name = name;
             Map<String,String> javaTypeMap = toJavaTypeMap(name);
-            List<Map<String,Object>> mpList = Db.findList(sql,true);
+            List<Map<String,Object>> mpList = Db.use(dataSource).findList(sql,new Object[]{});
             for (Map<String,Object> mp:mpList) {
                 ColumnMeta columnMeta= new ColumnMeta();
                 columnMeta.name = (String) mp.get("Field");

@@ -1,12 +1,12 @@
 /**
  * Copyright (c) 2011-2016, James Zhan 詹波 (jfinal@126.com).
- * <p>
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
+ * <p/>
  * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,6 +24,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.sql.Date;
 
 /**
  * StringKit.
@@ -176,18 +177,6 @@ public class StringKit {
         return sb.toString();
     }
 
-    /**
-     * 根据Model返回对应的表名
-     * @param model
-     * @param <T>
-     * @return 返回表名
-     */
-    public static <T> String toTableNameByModel(Class<T> model) {
-        String simpleName = model.getSimpleName();
-        simpleName = simpleName.replace("Model", "");
-        simpleName = StringKit.toUnderscoreName(simpleName);
-        return Db.getDbNamePrefix() + simpleName;
-    }
 
     /**
      * 根据表名返回对应的Model名
@@ -229,6 +218,35 @@ public class StringKit {
             e.printStackTrace();
         }
         return "";
+    }
+
+    /**
+     * 判断是否为基础类型
+     * @param clazz
+     * @return
+     */
+    public static boolean isBaseDataType(Class clazz) {
+        try {
+            return
+                    (
+                            clazz.equals(java.lang.String.class) ||
+                            clazz.equals(java.lang.Integer.class) ||
+                            clazz.equals(java.lang.Byte.class) ||
+                            clazz.equals(java.lang.Long.class) ||
+                            clazz.equals(java.lang.Double.class) ||
+                            clazz.equals(java.lang.Float.class) ||
+                            clazz.equals(java.lang.Character.class) ||
+                            clazz.equals(java.lang.Short.class) ||
+                            clazz.equals(java.math.BigDecimal.class) ||
+                            clazz.equals(java.math.BigInteger.class) ||
+                            clazz.equals(java.lang.Boolean.class) ||
+                            clazz.equals(java.sql.Date.class) ||
+                                    clazz.isPrimitive()
+                    );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }
 

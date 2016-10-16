@@ -31,7 +31,6 @@ public abstract class Model<M extends Model> implements Serializable {
     private Set<String> modifyFlag = new HashSet<String>();
     private Object[] NULL_PARA_ARRAY = new Object[]{};
     public Model() {
-        this.table = StringKit.toTableNameByModel(this.getClass());
         this.jdbc = getJdbc();
     }
     public Model(Object copyBean) {
@@ -500,6 +499,28 @@ public abstract class Model<M extends Model> implements Serializable {
                 return null;
             }
         });
+    }
+    public <T> List<T> queryForList(String column, String conditions, Object[] conditionParas,Class<T> claszz){
+        String sql = DefaultDialect.getDialect().forModelFindBy(table, column, " and "+conditions);
+        if (order.length()>0){
+            sql = sql+" "+order.toString();
+        }
+        if (limit.length()>0){
+            sql = sql+" "+limit.toString();
+        }
+        if (!StringKit.isBaseDataType(claszz)){
+            throw new DataException("类型不符合，只能使用基本类型");
+        }
+        return jdbc.queryForList(sql,conditionParas,claszz);
+    }
+    public <T> T queryForObject(String column, String conditions, Object[] conditionParas,Class<T> claszz){
+        List<T> list = queryForList(column,conditions,conditionParas,claszz);
+        if (list.size()==1){
+            return  list.get(0);
+        }else if (list.size()==0){
+            return null;
+        }
+        throw new DataException("不止1条数据");
     }
     /**
      * 查找Model对象列表
