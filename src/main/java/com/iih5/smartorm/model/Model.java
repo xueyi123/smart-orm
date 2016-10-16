@@ -148,15 +148,15 @@ public abstract class Model<M extends Model> implements Serializable {
     public Long insertAndReturnId(){
         if (insert()){
             String sql="SELECT LAST_INSERT_ID();";
-            return  Db.findBasicObject(sql,new Object[]{},Long.class);
+            return  jdbc.queryForObject(sql,new Object[]{},Long.class);
         }
         return null;
     }
     /**
      * 根据条件删除数据
      *
-     * @param conditions      比如：conditions="userId=? and name=?"
-     * @param conditionValues 比如：new Object[]{1000,'hill'};
+     * @param conditions      操作条件，比如：conditions="userId=? and name=?"
+     * @param conditionValues 参数比如：new Object[]{1000,'hill'};
      * @return true if delete succeed otherwise false
      */
     public boolean delete(String conditions, Object[] conditionValues) {
@@ -169,6 +169,12 @@ public abstract class Model<M extends Model> implements Serializable {
         }
         return true;
     }
+
+    /**
+     * 根据条件删除数据
+     * @param cdtBean  把条件封装成一个bean对象
+     * @return
+     */
     public boolean delete(Object cdtBean) {
         String sql = "delete from "+table+" where 1=1 "+StringKit.beanToSqlConditionStr(cdtBean);
         if (jdbc.update(sql) < 0) {
@@ -176,6 +182,12 @@ public abstract class Model<M extends Model> implements Serializable {
         }
         return true;
     }
+
+    /**
+     * 根据条件删除数据
+     * @param conditions  操作条件，比如：conditions="userId=10000 and name='nick'"
+     * @return
+     */
     public boolean delete(String conditions) {
         StringBuilder sql = new StringBuilder();
         sql.append("delete from ");
@@ -187,6 +199,12 @@ public abstract class Model<M extends Model> implements Serializable {
         }
         return true;
     }
+
+    /**
+     * 根据条件删除数据
+     * @param id
+     * @return
+     */
     public boolean deleteById(Object id) {
         StringBuilder sql = new StringBuilder();
         sql.append("delete from ");
@@ -198,6 +216,12 @@ public abstract class Model<M extends Model> implements Serializable {
         }
         return true;
     }
+
+    /**
+     * 根据条件删除数据
+     * @param list id列表
+     * @return
+     */
     public boolean deleteByIds(List list) {
         String st1=list.toString();
         String arr = st1.substring(st1.indexOf("[")+1,st1.indexOf("]"));
@@ -213,6 +237,12 @@ public abstract class Model<M extends Model> implements Serializable {
         }
         return true;
     }
+
+    /**
+     * 根据条件删除数据
+     * @param ids id列表
+     * @return
+     */
     public boolean deleteByIds(Object... ids) {
         String str = JSON.toJSONString(ids) ;
         String arr = str.substring(str.indexOf("[") + 1, str.indexOf("]"));
@@ -231,7 +261,7 @@ public abstract class Model<M extends Model> implements Serializable {
     /**
      * 根据条件修改数据
      *
-     * @param conditions      比如：conditions="userId=? and name=?"
+     * @param conditions       比如：conditions="userId=? and name=?"
      * @param conditionValues 比如：new Object[]{1000,'hill'};
      * @return true if delete succeed otherwise false
      */
@@ -253,12 +283,30 @@ public abstract class Model<M extends Model> implements Serializable {
             return true;
         }
     }
+
+    /**
+     * 根据条件更新
+     * @param conditions
+     * @return
+     */
     public boolean updateBy(String conditions){
        return updateBy(conditions,new Object[]{});
     }
+
+    /**
+     * 根据条件更新
+     * @param id 根据ID
+     * @return
+     */
     public boolean updateById(Object id){
         return updateBy("id=?",new Object[]{id});
     }
+
+    /**
+     * 根据条件更新
+     * @param cdtBean 根据bean的对象
+     * @return
+     */
     public boolean updateBy(Object cdtBean) {
         try {
             beanToAttrs();
@@ -279,7 +327,7 @@ public abstract class Model<M extends Model> implements Serializable {
     }
 
     /**
-     * 替换
+     * 替换，如果没有这直接插入，否则替换
      * @param condition
      * @param paras
      * @return
@@ -293,9 +341,21 @@ public abstract class Model<M extends Model> implements Serializable {
         }
         return rt;
     }
+
+    /**
+     * 替换，如果没有这直接插入，否则替换
+     * @param condition
+     * @return
+     */
     public boolean replaceBy(String condition){
         return replaceBy(condition,new Object[]{});
     }
+
+    /**
+     * 替换，如果没有这直接插入，否则替换
+     * @param id
+     * @return
+     */
     public boolean replaceById(Object id){
         boolean rt = true;
         if (findById(id) == null){
@@ -305,6 +365,12 @@ public abstract class Model<M extends Model> implements Serializable {
         }
         return rt;
     }
+
+    /**
+     * 替换，如果没有这直接插入，否则替换
+     * @param cdtBean
+     * @return
+     */
     public boolean replaceBy(Object cdtBean){
         boolean rt = true;
         if (findBy(cdtBean) == null){
@@ -349,6 +415,12 @@ public abstract class Model<M extends Model> implements Serializable {
     public M findBy(String conditions)  {
         return findBy(conditions,new Object[]{});
     }
+
+    /**
+     * 根据ID查询对象
+     * @param id
+     * @return
+     */
     public M findById(Object id){
       return findBy("id=?",new Object[]{id});
     }
@@ -460,6 +532,12 @@ public abstract class Model<M extends Model> implements Serializable {
     public List<M> findListBy(String conditions)  {
         return findListBy(conditions, NULL_PARA_ARRAY);
     }
+
+    /**
+     * 根据bean对象查询列表
+     * @param cdtBean
+     * @return
+     */
     public List<M> findListBy(Object cdtBean){
         return queryList("*",StringKit.beanToSqlConditionStr(cdtBean),new Object[]{});
     }
@@ -483,6 +561,12 @@ public abstract class Model<M extends Model> implements Serializable {
         return jdbc.queryForObject(sql, NULL_PARA_ARRAY, Long.class);
     }
 
+    /**
+     *分页条件
+     * @param pageNum 第几页
+     * @param pageSize 每页多少行
+     * @return
+     */
     public M limit(Long pageNum,Integer pageSize){
         this.pageNumber = pageNum;
         if (pageNum<1){
@@ -493,6 +577,13 @@ public abstract class Model<M extends Model> implements Serializable {
         limit.append(" limit ").append(start).append(", ").append(this.pageSize);
         return (M) this;
     }
+
+    /**
+     * 排序
+     * @param column
+     * @param sortType
+     * @return
+     */
     public M order(String column,String sortType){
         order.append(" order by ").append(column).append(" ").append(sortType);
         return (M) this;
@@ -500,9 +591,6 @@ public abstract class Model<M extends Model> implements Serializable {
 
     /**
      * 分页查询
-     *
-//     * @param pageNumber 第几页
-//     * @param pageSize   每一页的大小
      * @param columns    字段名称，比如 columns="id,name,age"
      * @param conditions 查询条件，比如 conditions="user_id=? and age=?"
      * @param paras      查询参数
@@ -525,9 +613,22 @@ public abstract class Model<M extends Model> implements Serializable {
         List<M> list =findListBy(columns, conditions, paras);
         return new Page<M>(list, pageNumber, pageSize, totalPage, totalRow);
     }
+
+    /**
+     * 分页查询
+     * @param conditions
+     * @param paras
+     * @return
+     */
     public Page<M> paginate( String conditions, Object[] paras)  {
         return  paginate("*",conditions,paras);
     }
+
+    /**
+     * 分页查询
+     * @param ctdBean
+     * @return
+     */
     public Page<M> paginate(Object ctdBean)  {
         Long size = findListCountBy(ctdBean);
         Long totalRow = size;
