@@ -11,7 +11,6 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -21,7 +20,6 @@ import java.util.*;
 public class DbExecutor {
     private static Map<String, DbExecutor> map = new HashMap<String, DbExecutor>();
     private static String defaultDataSource = null;
-    private Object[] NULL_PARA_ARRAY = new Object[]{};
     public JdbcTemplate jdbc = null;
     /**
      * 选择使用数据库（默认选中第一个）
@@ -54,7 +52,6 @@ public class DbExecutor {
         }
         return  executor;
     }
-
     /**
      * 返回JdbcTemplate
      * @param dataSource
@@ -75,55 +72,34 @@ public class DbExecutor {
     public  JdbcTemplate getJdbcTemplate() {
         return  getJdbcTemplate(defaultDataSource);
     }
-    /**
-     * 查找Model对象列表
-     * @param sql
-     * @param paras
-     * @param model
-     * @param <T>
-     * @return
-     * @
-     */
-    <T> List<T> queryList(String sql, Object[] paras, final Class<T> model)  {
-        final Set<String> columnMeta= new HashSet<String>();
+
+    protected <T> List<T> queryList(String sql, Object[] paras, final Class<T> claszz)  {
+        final Set<String> columnMeta = new HashSet<String>();
         final Map<String,String> fieldMap = new HashMap<String, String>();
         return jdbc.query(sql, paras, new RowMapper<T>() {
             public T mapRow(ResultSet rs, int rowNum) throws SQLException {
                 try {
-                    if (columnMeta.size()==0){
-                        for (int i = 0; i <rs.getMetaData().getColumnCount() ; i++) {
-                            String column= rs.getMetaData().getColumnLabel(i+1);
+                    if (columnMeta.size() <= 0) {
+                        for (int i = 0; i < rs.getMetaData().getColumnCount(); i++) {
+                            String column = rs.getMetaData().getColumnLabel(i + 1);
                             columnMeta.add(column);
                         }
                     }
-                    Model mModel = (Model) model.newInstance();
-                    Field[] fields = mModel.getClass().getFields();
-                    if (0 < fields.length) {
-//                        for (Field f : fields) {
-//                            if (columnMeta.contains(f.getName())){
-//                                f.set(mModel,rs.getObject(f.getName()));
-//                            }
-//                        }
-                        //------
-                        for (Field fd:fields) {
-                            String column = fieldMap.get(fd.getName());
+                   Object mModel = claszz.newInstance();
+                    Field[] fields = mModel.getClass().getDeclaredFields();
+                    if (fields.length > 0) {
+                        for (Field field:fields) {
+                            String column = fieldMap.get(field.getName());
                             if (column == null){
-                                String tmpN = StringKit.toUnderscoreName(fd.getName());
-                                fieldMap.put(column,tmpN);
+                                column = StringKit.toUnderscoreName(field.getName());
+                                fieldMap.put(field.getName(),column);
                             }
-                            Object value = rs.getObject(column);
-                            PropertyDescriptor pd = new PropertyDescriptor(fd.getName(),mModel.getClass());
-                            Method method = pd.getWriteMethod();
-                            method.invoke(mModel,value);
-                        }
-                        //------
-                    }else {
-                        ResultSetMetaData rad = rs.getMetaData();
-                        int columnCount = rad.getColumnCount();
-                        Map<String, Object> attrs = mModel.getAttrs();
-                        for (int i = 1; i <= columnCount; i++) {
-                            Object value = rs.getObject(i);
-                            attrs.put(rad.getColumnName(i), value);
+                            if (columnMeta.contains(column)){
+                                Object value = rs.getObject(column);
+                                PropertyDescriptor pd = new PropertyDescriptor(field.getName(),mModel.getClass());
+                                Method method = pd.getWriteMethod();
+                                method.invoke(mModel,value);
+                            }
                         }
                     }
                     return (T) mModel;
@@ -136,131 +112,58 @@ public class DbExecutor {
     }
     /**
      * 查找Model对象列表
-     * @param sql
-     * @param paras
-     * @param model
-     * @param <T>
+     * @param sql  sql语句 参数用?代替
+     * @param paras 参数
+     * @param claszz
+     * @param <T> 返回对象
      * @return
      * @
      */
-    public <T> List<T> findList(String sql, Object[] paras, final Class<T> model)  {
-       return queryList(sql, paras, model);
+    public <T> List<T> findList(String sql, Object[] paras, Class<T> claszz)  {
+       return queryList(sql, paras, claszz);
     }
     /**
-     * 查找Model对象列表
-     * @param sql
-     * @param model
-     * @param <T>
-     * @return
-     * @
+     * 获取Map格式列表
+     * @param sql sql语句 参数用?代替
+     * @param paras 参数
+     * @return  返回  List<Map<String,Object>>
      */
-    public <T> List<T> findList(String sql, final Class<T> model)  {
-        return  findList(sql,NULL_PARA_ARRAY,model);
-    }
-
-    /**
-     * 获取Map格式列表(不包含attrs包裹属性)
-     * @param sql
-     * @return
-     */
-    public List<Map<String,Object>> findList(String sql,boolean isNotAttr){
-        return jdbc.queryForList(sql);
-    }
-
-    /**
-     * 获取Map格式列表(不包含attrs包裹属性)
-     * @param sql
-     * @param paras
-     * @return
-     */
-    public List<Map<String,Object>> findList(String sql, Object[] paras,boolean isNotAttr){
+    public List<Map<String,Object>> findList(String sql, Object[] paras){
         return jdbc.queryForList(sql,paras);
     }
     /**
-     * 查找Model对象
-     * @param sql
-     * @param paras
-     * @param model
-     * @param <T>
+     * 查找claszz的bean对象
+     * @param sql sql语句 参数用?代替
+     * @param paras 参数
+     * @param claszz 返回对象
+     * @param <T> 返回对象
      * @return
      * @
      */
-    public <T> T find(String sql, Object[] paras, final Class<T> model)  {
-        List<T> result = findList(sql,paras,model);
-        return result.size() > 0 ? result.get(0) : null;
-    }
-    /**
-     * 查找Model对象
-     * @param sql
-     * @param model
-     * @param <T>
-     * @return
-     * @
-     */
-    public <T> T find(String sql, final Class<T> model)  {
-        return find(sql,NULL_PARA_ARRAY,model);
-    }
-    /**
-     * 查找基础对象
-     * @param sql
-     * @param paras
-     * @param classType
-     * @param <T>
-     * @return
-     */
-    public <T> T findBasicObject(String sql, Object[] paras, Class<T> classType) {
-        return jdbc.queryForObject(sql, paras, classType);
-    }
-
-    /**
-     * 查找基础对象
-     * @param sql
-     * @param classType
-     * @param <T>
-     * @return
-     */
-    public <T> T findBasicObject(String sql, Class<T> classType) {
-        return jdbc.queryForObject(sql, NULL_PARA_ARRAY, classType);
-    }
-
-    /**
-     * 查找基础对象列表
-     * @param sql
-     * @param paras
-     * @param classType
-     * @param <T>
-     * @return
-     */
-    public <T> List<T> findBasicObjectList(String sql, Object[] paras, Class<T> classType) {
-        return jdbc.queryForList(sql, paras, classType);
-    }
-
-    /**
-     * 查找基础对象列表
-     * @param sql
-     * @param classType
-     * @param <T>
-     * @return
-     */
-    public <T> List<T> findBasicObjectList(String sql, Class<T> classType) {
-        return jdbc.queryForList(sql, NULL_PARA_ARRAY, classType);
+    public <T> T find(String sql, Object[] paras,  Class<T> claszz)  {
+        List<T> result = findList(sql,paras,claszz);
+        if (result.size()>1){
+            throw new DataException("返回多于1条数据");
+        }if (result.size()==0){
+            return null;
+        }
+        return  result.get(0);
     }
 
     /**
      * 更新数据对象（update or insert,delete）
-     * @param sql
-     * @param paras
+     * @param sql 参数用?代替
+     * @param paras 参数
      * @return
      * @throws DataAccessException
      */
     public int update(String sql, Object[] paras) throws DataAccessException {
         return jdbc.update(sql, paras);
     }
-
     /**
-     * 批量更新数据对象（update or insert,delete
-     * @param sql
-     * @param batchArgs
+     * 批量更新数据对象（可执行update，insert,delete三种语句）
+     * @param sql sql语句 参数用?代替
+     * @param batchArgs 批量插入的参数
      * @return
      */
     public int[] batchUpdate(String sql, List<Object[]> batchArgs) {
@@ -268,75 +171,12 @@ public class DbExecutor {
     }
 
     /**
-     * 分页查询
-     * @param model
-     * @param pageNumber 第几页
-     * @param pageSize 每一页的大小
-     * @param sql 查询语句 (不能带limit,系统会自动带上)
-     * @param paras 查询参数
-     * @return the Page object
+     * sql语句执行的基础命令，没有返回值（可以执行DML操作和存储过程）
+     * @param sql sql sql语句 参数用?代替
      */
-    public  <T> Page<T> paginate(final  Class<T> model,int pageNumber, int pageSize, String sql,Object[] paras)  {
-        StringBuffer cSql=new StringBuffer();
-        cSql.append("select count(*) from ( ");
-        cSql.append(sql);
-        cSql.append(" ) as t");
-        long size= findBasicObject(cSql.toString(),paras,Long.class);
-        long totalRow=size;
-        if (totalRow == 0) {
-            return new Page<T>(new ArrayList<T>(0), pageNumber, pageSize, 0, 0);
-        }
-        long totalPage = (totalRow / pageSize);
-        if (totalRow % pageSize != 0) {
-            totalPage++;
-        }
-        if (pageNumber > totalPage) {
-            return new Page<T>(new ArrayList<T>(0), pageNumber, pageSize, totalPage, totalRow);
-        }
-
-        long offset = pageSize * (pageNumber - 1);
-        StringBuilder ssql = new StringBuilder();
-        ssql.append(sql).append(" ");
-        ssql.append(" limit ").append(offset).append(", ").append(pageSize);
-        List<T> list = findList(ssql.toString(),paras,model);
-        return new Page<T>(list, pageNumber, pageSize, totalPage, totalRow);
+    public void execute(String sql){
+        jdbc.execute(sql);
     }
-
-
-    /**
-     * 分页查询(不包含attrs包裹属性)
-     * @param model
-     * @param pageNumber 第几页
-     * @param pageSize 每一页的大小
-     * @param sql 查询语句 (不能带limit,系统会自动带上)
-     * @param paras 查询参数
-     * @return the Page object
-     */
-    public <T> Page<Map> paginate(final  Class<T> model,int pageNumber, int pageSize, String sql,Object[] paras,boolean isNotAttr)  {
-        StringBuffer cSql=new StringBuffer();
-        cSql.append("select count(*) from ( ");
-        cSql.append(sql);
-        cSql.append(" ) as t");
-        long size= findBasicObject(cSql.toString(),paras,Long.class);
-        long totalRow=size;
-        if (totalRow == 0) {
-            return new Page<Map>(new ArrayList<Map>(0), pageNumber, pageSize, 0, 0);
-        }
-        long totalPage = (totalRow / pageSize);
-        if (totalRow % pageSize != 0) {
-            totalPage++;
-        }
-        if (pageNumber > totalPage) {
-            return new Page<Map>(new ArrayList<Map>(0), pageNumber, pageSize, totalPage, totalRow);
-        }
-        long offset = pageSize * (pageNumber - 1);
-        StringBuilder ssql = new StringBuilder();
-        ssql.append(sql).append(" ");
-        ssql.append(" limit ").append(offset).append(", ").append(pageSize);
-        List list = findList(ssql.toString(),paras,isNotAttr);
-        return new Page<Map>(list, pageNumber, pageSize, totalPage, totalRow);
-    }
-
 }
 
 
