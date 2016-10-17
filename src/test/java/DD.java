@@ -6,11 +6,7 @@ import java.sql.Timestamp;
 
 public class DD {
     public static void main(String[] args) {
-        BeanT t = new BeanT();
-        t.setName("ddddddd");
-        t.setId(1000);
-        SimplePropertyPreFilter filter = new SimplePropertyPreFilter(BeanT.class, "name");
-
-        System.out.println( JSON.toJSONString(t, filter));
+        String relativelyPath=System.getProperty("user.dir");
+        System.out.println( relativelyPath);
     }
 }
