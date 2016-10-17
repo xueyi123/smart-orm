@@ -14,8 +14,8 @@ package com.iih5.smartorm.kit;
 
 //<?xml version="1.0" encoding="UTF-8"?>
 //
-//<goodorm>
+//<smart-orm>
 //<sql method="findUserName">
 //        select nick_name from t_user where id = ? and <![CDATA[id >100]]>
 //</sql>
-//</goodorm>
+//</smart-orm>

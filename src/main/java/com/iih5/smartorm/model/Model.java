@@ -569,7 +569,7 @@ public abstract class Model<M extends Model> implements Serializable {
      * @return
      */
     public Long findListCountBy(String conditions, Object[] conditionParas){
-        String sql = DefaultDialect.getDialect().forModelFindBy(table, " count(*) ", conditions);
+        String sql = DefaultDialect.getDialect().forModelFindBy(table, " count(*) ", " and "+conditions);
         return  jdbc.queryForObject(sql,conditionParas, Long.class);
     }
     /**

@@ -63,11 +63,11 @@ public class Page<T> implements Serializable {
 	}
 
 	public boolean isFirstPage() {
-		return pageNumber == 1;
+		return pageNumber <= 1;
 	}
 
 	public boolean isLastPage() {
-		return pageNumber == totalPage;
+		return pageNumber >= totalPage;
 	}
 
 	/**
