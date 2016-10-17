@@ -105,7 +105,6 @@ public class ModelBuilder {
         createConstruct(className,tableMeta.name);
         JavaType javaTypeM = new JavaType();
         for (ColumnMeta columnMeta:tableMeta.columnMetas) {
-            System.out.println(tableMeta.name+" }}}}}}}}}}}}} "+columnMeta.name+"}}}}}}}}}}}}}}}}="+ columnMeta.dataType);//-----------------------------------------------------
             String javaType= javaTypeM.getType(columnMeta.dataType);
             if (javaType==null){
                 throw new NullPointerException("找不到 "+columnMeta.dataType+"对应的JavaType");
