@@ -569,7 +569,7 @@ public abstract class Model<M extends Model> implements Serializable {
      * @return
      */
     public Long findListCountBy(String conditions, Object[] conditionParas){
-        String sql = DefaultDialect.getDialect().forModelFindBy(table, " count(*) ", conditions);
+        String sql = DefaultDialect.getDialect().forModelFindBy(table, " count(*) ", " and "+conditions);
         return  jdbc.queryForObject(sql,conditionParas, Long.class);
     }
     /**
@@ -594,7 +594,7 @@ public abstract class Model<M extends Model> implements Serializable {
             this.pageNumber = 1L;
         }
         this.pageSize = pageSize;
-        Long start = (pageNum-1)*pageSize;
+        Long start = (this.pageNumber-1)*this.pageSize;
         limit.append(" limit ").append(start).append(", ").append(this.pageSize);
         return (M) this;
     }
