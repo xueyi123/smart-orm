@@ -1117,18 +1117,46 @@ public class RedisExecutor {
         return d;
     }
 
-    public void subscribe(JedisPubSub jedisPubSub, String... channels) {
-        Jedis jedis=pool.getResource();
-        jedis.subscribe(jedisPubSub, channels);
-        jedis.close();
-        return ;
+    public void subscribe(final JedisPubSub jedisPubSub, final String... channels) {
+        Thread thread=new Thread(new Runnable() {
+            public void run() {
+                while (true) {
+                    try {
+                        Jedis jedis=pool.getResource();
+                        jedis.subscribe(jedisPubSub, channels);
+                        jedis.close();
+                    } catch (Exception e) {
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e1) {
+                            e1.printStackTrace();
+                        }
+                    }
+                }
+            }
+        });
+        thread.start();
     }
 
-    public void psubscribe(JedisPubSub jedisPubSub, String... patterns) {
-        Jedis jedis=pool.getResource();
-        jedis.psubscribe(jedisPubSub, patterns);
-        jedis.close();
-        return ;
+    public void psubscribe(final JedisPubSub jedisPubSub, final String... patterns) {
+        Thread thread=new Thread(new Runnable() {
+            public void run() {
+                while (true) {
+                    try {
+                        Jedis jedis=pool.getResource();
+                        jedis.psubscribe(jedisPubSub, patterns);
+                        jedis.close();
+                    } catch (Exception e) {
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e1) {
+                            e1.printStackTrace();
+                        }
+                    }
+                }
+            }
+        });
+        thread.start();
     }
 
     public String randomKey() {
@@ -1297,6 +1325,34 @@ public class RedisExecutor {
         Map<byte[], byte[]> d=jedis.hgetAll(key);
         jedis.close();
         return d;
+    }
+
+    public Long publish(byte[] channel, byte[] message) {
+        Jedis jedis=pool.getResource();
+        Long d=jedis.publish(channel, message);
+        jedis.close();
+        return d;
+    }
+
+    public void subscribe(final BinaryJedisPubSub jedisPubSub, final byte[]... channels) {
+        Thread thread=new Thread(new Runnable() {
+            public void run() {
+                while (true) {
+                    try {
+                        Jedis jedis=pool.getResource();
+                        jedis.subscribe(jedisPubSub, channels);
+                        jedis.close();
+                    } catch (Exception e) {
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e1) {
+                            e1.printStackTrace();
+                        }
+                    }
+                }
+            }
+        });
+        thread.start();
     }
 
 

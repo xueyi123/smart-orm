@@ -624,43 +624,12 @@ public class Redis {
     }
 
      public static void subscribe(final JedisPubSub jedisPubSub, final String... channels) {
-         Thread thread=new Thread(new Runnable() {
-             public void run() {
-                 while (true) {
-                     try {
-                         defaultExecutor.subscribe(jedisPubSub, channels);
-                     } catch (Exception e) {
-                         try {
-                             Thread.sleep(1000);
-                         } catch (InterruptedException e1) {
-                             e1.printStackTrace();
-                         }
-                     }
-                 }
-             }
-         });
-         thread.start();
+         defaultExecutor.subscribe(jedisPubSub, channels);
     }
 
      public static void psubscribe(final JedisPubSub jedisPubSub, final String... patterns) {
-
-         Thread thread=new Thread(new Runnable() {
-             public void run() {
-                 while (true) {
-                     try {
-                         defaultExecutor.psubscribe(jedisPubSub, patterns);
-                     } catch (Exception e) {
-                         try {
-                             Thread.sleep(1200);
-                         } catch (InterruptedException e1) {
-                             e1.printStackTrace();
-                         }
-                     }
-                 }
-             }
-         });
-         thread.start();
-    }
+         defaultExecutor.psubscribe(jedisPubSub, patterns);
+     }
 
      public static String randomKey() {
         return defaultExecutor.randomKey();
@@ -758,5 +727,15 @@ public class Redis {
     public static Map<byte[], byte[]> hgetAll(byte[] key) {
         return defaultExecutor.hgetAll(key);
     }
+
+    public Long publish(byte[] channel, byte[] message) {
+      return defaultExecutor.publish(channel, message);
+    }
+
+    public void subscribe(final BinaryJedisPubSub jedisPubSub, final byte[]... channels) {
+       defaultExecutor.subscribe(jedisPubSub, channels);
+    }
+
+
 
 }
