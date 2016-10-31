@@ -1,9 +1,12 @@
 package com.iih5.smartorm.generator;
-import com.alibaba.fastjson.JSON;
+
 import com.iih5.smartorm.model.Db;
 
 import java.sql.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class TableMetaUtil {
 

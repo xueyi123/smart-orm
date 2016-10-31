@@ -1,6 +1,6 @@
 package com.iih5.smartorm.model;
 
-import com.alibaba.fastjson.JSON;
+import com.google.gson.Gson;
 
 import java.io.Serializable;
 import java.util.List;
@@ -75,7 +75,7 @@ public class Page<T> implements Serializable {
 	 * @return json str
 	 */
 	public String toString() {
-		return JSON.toJSONString(this);
+		return new Gson().toJson(this);
 	}
 }
 

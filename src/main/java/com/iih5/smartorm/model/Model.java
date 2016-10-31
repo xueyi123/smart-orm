@@ -1,7 +1,6 @@
 package com.iih5.smartorm.model;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.annotation.JSONField;
+import com.google.gson.Gson;
 import com.iih5.smartorm.dialect.DefaultDialect;
 import com.iih5.smartorm.kit.StringKit;
 import org.springframework.beans.BeanUtils;
@@ -26,8 +25,7 @@ public abstract class Model<M extends Model> implements Serializable {
     private  Integer pageSize;
     private  StringBuffer order = new StringBuffer();
     protected String table;//表名
-    @JSONField(serialize = false)
-    private Map<String, Object> attrs = new HashMap<String, Object>();
+    private transient  Map<String, Object> attrs = new HashMap<String, Object>();
     private Set<String> modifyFlag = new HashSet<String>();
     private Object[] NULL_PARA_ARRAY = new Object[]{};
     public Model() {
@@ -243,7 +241,7 @@ public abstract class Model<M extends Model> implements Serializable {
      * @return
      */
     public boolean deleteByIds(Object... ids) {
-        String str = JSON.toJSONString(ids) ;
+        String str = new Gson().toJson(ids) ;
         String arr = str.substring(str.indexOf("[") + 1, str.indexOf("]"));
         StringBuilder sql = new StringBuilder();
         sql.append("delete from ");
@@ -693,9 +691,9 @@ public abstract class Model<M extends Model> implements Serializable {
      */
     public String toString() {
         if (this.getClass().getFields().length > 0) {
-            return JSON.toJSONString(this);
+            return new Gson().toJson(this);
         }
-        return JSON.toJSONString(attrs);
+        return  new Gson().toJson(attrs);
     }
     /**
      * @return
