@@ -1355,5 +1355,11 @@ public class RedisExecutor {
         thread.start();
     }
 
+    public Long time(){
+        Jedis jedis=pool.getResource();
+        String timestamp = jedis.time().get(0);
+        jedis.close();
+        return Long.valueOf(timestamp);
+    }
 
 }

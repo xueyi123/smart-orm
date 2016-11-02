@@ -728,14 +728,16 @@ public class Redis {
         return defaultExecutor.hgetAll(key);
     }
 
-    public Long publish(byte[] channel, byte[] message) {
+    public static Long publish(byte[] channel, byte[] message) {
       return defaultExecutor.publish(channel, message);
     }
 
-    public void subscribe(final BinaryJedisPubSub jedisPubSub, final byte[]... channels) {
+    public static void subscribe(final BinaryJedisPubSub jedisPubSub, final byte[]... channels) {
        defaultExecutor.subscribe(jedisPubSub, channels);
     }
-
+    public static Long time(){
+        return defaultExecutor.time();
+    }
 
 
 }
