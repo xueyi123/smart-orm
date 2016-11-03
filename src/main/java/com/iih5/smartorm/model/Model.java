@@ -1,6 +1,5 @@
 package com.iih5.smartorm.model;
 
-import com.google.gson.Gson;
 import com.iih5.smartorm.dialect.DefaultDialect;
 import com.iih5.smartorm.kit.StringKit;
 import org.springframework.beans.BeanUtils;
@@ -235,26 +234,6 @@ public abstract class Model<M extends Model> implements Serializable {
         return true;
     }
 
-    /**
-     * 根据条件删除数据
-     * @param ids id列表
-     * @return
-     */
-    public boolean deleteByIds(Object... ids) {
-        String str = new Gson().toJson(ids) ;
-        String arr = str.substring(str.indexOf("[") + 1, str.indexOf("]"));
-        StringBuilder sql = new StringBuilder();
-        sql.append("delete from ");
-        sql.append(table);
-        sql.append(" where id in ");
-        sql.append("(");
-        sql.append(arr);
-        sql.append(")");
-        if (jdbc.update(sql.toString()) < 0) {
-            return false;
-        }
-        return true;
-    }
     /**
      * 根据条件修改数据
      *
@@ -683,17 +662,6 @@ public abstract class Model<M extends Model> implements Serializable {
      */
     public int hashCode() {
         return (attrs == null ? 0 : attrs.hashCode()) ^ (getModifyFlag() == null ? 0 : getModifyFlag().hashCode());
-    }
-    /**
-     * 转换为json字符串
-     *
-     * @return json str
-     */
-    public String toString() {
-        if (this.getClass().getFields().length > 0) {
-            return new Gson().toJson(this);
-        }
-        return  new Gson().toJson(attrs);
     }
     /**
      * @return

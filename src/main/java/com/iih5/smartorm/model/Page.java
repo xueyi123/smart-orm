@@ -1,7 +1,5 @@
 package com.iih5.smartorm.model;
 
-import com.google.gson.Gson;
-
 import java.io.Serializable;
 import java.util.List;
 
@@ -70,12 +68,5 @@ public class Page<T> implements Serializable {
 		return pageNumber >= totalPage;
 	}
 
-	/**
-	 * 转换为json字符串
-	 * @return json str
-	 */
-	public String toString() {
-		return new Gson().toJson(this);
-	}
 }
 

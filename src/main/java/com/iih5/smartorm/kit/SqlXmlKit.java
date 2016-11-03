@@ -1,9 +1,10 @@
 package com.iih5.smartorm.kit;
 
-import org.apache.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.InputStream;
@@ -17,6 +18,7 @@ import java.util.Map;
  * 用于xml配置sql语句的解决插件
  */
 public class SqlXmlKit {
+   static Logger logger = LoggerFactory.getLogger(SqlXmlKit.class);
     // map<className,<method,sql>>
     private static HashMap<String, Map<String, String>> resourcesMap = new HashMap<String, Map<String, String>>();
     private static boolean debug = false;
@@ -35,14 +37,14 @@ public class SqlXmlKit {
         try {
             URL url = Thread.currentThread().getContextClassLoader().getResource(sqlDir);
             if (url == null) {
-                Logger.getLogger(SqlXmlKit.class).warn("找不到sql文件目录！");
+                logger.warn("找不到sql文件目录！");
                 return;
             }
             File dataDir = new File(url.toURI());
             init(dataDir);
         } catch (Exception e) {
             e.printStackTrace();
-            Logger.getLogger(SqlXmlKit.class).error("读取sql xml 文件异常");
+            logger.error("读取sql xml 文件异常");
         }
     }
 
@@ -128,7 +130,7 @@ public class SqlXmlKit {
         String path = sqlDir + "/" + fileName + ".xml";
         InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(path);
         if (in == null) {
-            Logger.getLogger(SqlXmlKit.class).warn("找不到文件:" + path);
+            logger.warn("找不到文件:" + path);
             return null;
         }
         try {
