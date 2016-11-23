@@ -6,8 +6,7 @@ import org.dom4j.io.SAXReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,15 +42,16 @@ public class SqlXmlKit {
             File dataDir = new File(url.toURI());
             init(dataDir);
         } catch (Exception e) {
-            e.printStackTrace();
-            logger.error("读取sql xml 文件异常");
+            logger.error("读取sql xml 文件异常",e);
         }
     }
 
     public SqlXmlKit(String path, boolean isDebug) {
-        debug = isDebug;
-        sqlDir = path;
-        init(new File(sqlDir));
+        if (!"".equals(path)){
+            debug = isDebug;
+            sqlDir = path;
+            init(new File(sqlDir));
+        }
     }
 
     private void init(File dataDir) {
