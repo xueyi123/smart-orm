@@ -46,7 +46,7 @@ public class SqlXmlKit {
         }
     }
 
-    public SqlXmlKit(String[] paths) {
+    public SqlXmlKit(String ...paths) {
         try{
             ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
             for (String path:paths) {
