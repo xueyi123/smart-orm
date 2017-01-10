@@ -27,7 +27,7 @@ public interface Dialect {
      * @param conditions ，执行条件 比如：conditions="userId=? and name=?"
      * @return  sql
      */
-    public String forModelFindBy(String tableName, String columns,String conditions);
+    public String forModelFindBy(String tableName, String columns, String conditions);
 
     /**
      * 构建删除sql

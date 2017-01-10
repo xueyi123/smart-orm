@@ -16,7 +16,6 @@ package com.iih5.smartorm.generator;
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-import com.iih5.smartorm.kit.StringKit;
 
 import java.util.HashSet;
 import java.util.Set;

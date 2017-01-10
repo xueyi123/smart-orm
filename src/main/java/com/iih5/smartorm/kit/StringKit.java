@@ -17,20 +17,20 @@
 package com.iih5.smartorm.kit;
 
 import com.iih5.smartorm.generator.GeneratorTool;
-import com.iih5.smartorm.model.Db;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.sql.Date;
 
 /**
  * StringKit.
  */
 public class StringKit {
-
+    static Logger logger = LoggerFactory.getLogger(StringKit.class);
     /**
      * 首字母变小写
      */
@@ -185,8 +185,11 @@ public class StringKit {
      */
     public static String toModelNameByTable(String tableName) {
         if (GeneratorTool.isHashPrefix) {
+//            int index = tableName.indexOf("_");
+//            tableName = tableName.substring(index);
+            tableName = tableName.substring(tableName.indexOf("_")+1);
             int index = tableName.indexOf("_");
-            tableName = tableName.substring(index);
+            tableName = tableName.substring(index+1);
         }
         return toCamelCaseName(tableName);
     }
@@ -215,7 +218,7 @@ public class StringKit {
             }
             return condition.toString();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("异常",e);
         }
         return "";
     }
@@ -229,22 +232,22 @@ public class StringKit {
         try {
             return
                     (
-                            clazz.equals(java.lang.String.class) ||
-                            clazz.equals(java.lang.Integer.class) ||
-                            clazz.equals(java.lang.Byte.class) ||
-                            clazz.equals(java.lang.Long.class) ||
-                            clazz.equals(java.lang.Double.class) ||
-                            clazz.equals(java.lang.Float.class) ||
-                            clazz.equals(java.lang.Character.class) ||
-                            clazz.equals(java.lang.Short.class) ||
-                            clazz.equals(java.math.BigDecimal.class) ||
-                            clazz.equals(java.math.BigInteger.class) ||
-                            clazz.equals(java.lang.Boolean.class) ||
+                            clazz.equals(String.class) ||
+                            clazz.equals(Integer.class) ||
+                            clazz.equals(Byte.class) ||
+                            clazz.equals(Long.class) ||
+                            clazz.equals(Double.class) ||
+                            clazz.equals(Float.class) ||
+                            clazz.equals(Character.class) ||
+                            clazz.equals(Short.class) ||
+                            clazz.equals(BigDecimal.class) ||
+                            clazz.equals(BigInteger.class) ||
+                            clazz.equals(Boolean.class) ||
                             clazz.equals(java.sql.Date.class) ||
                                     clazz.isPrimitive()
                     );
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("异常",e);
         }
         return false;
     }

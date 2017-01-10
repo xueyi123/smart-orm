@@ -49,17 +49,12 @@ public class ModelBuilder {
         return (this);
     }
     private ModelBuilder createClass(String clas){
-        classBuilder.append("public class "+clas+" extends Model<"+clas+">{");
+        classBuilder.append("public class " + clas + " extends Model {");
         return (this);
     }
     private ModelBuilder createConstruct(String clas,String tableName){
-        constructBuilder.append("    public "+clas+"(){");
-        constructBuilder.append("\n       this.table=\""+tableName+"\";");
-        constructBuilder.append("\n    }");
-
-        constructBuilder.append("\n    public "+clas+"(Object cdtBean){");
-        constructBuilder.append("\n       super(cdtBean);\n");
-        constructBuilder.append("       this.table=\""+tableName+"\";");
+        constructBuilder.append("    public " + clas + "(){");
+        constructBuilder.append("\n       this.setTableName(\"" + tableName + "\");");
         constructBuilder.append("\n    }");
         return (this);
     }
@@ -75,6 +70,17 @@ public class ModelBuilder {
         setMethodBuilder.append("    }\n\n");
         return (this);
     }
+    private ModelBuilder createSetCalculateMethod(String type, String column) {
+        if (type.contains("Integer") || type.contains("Long") || type.contains("Double") || type.contains("Float")) {
+            setMethodBuilder.append("    public void set");
+            setMethodBuilder.append(StringKit.firstCharToUpperCase(StringKit.toCamelCaseName(column)) + "(" + type + " " + StringKit.toCamelCaseName(column) + ",String calculate" + ") { \n");
+            setMethodBuilder.append("        this." + StringKit.toCamelCaseName(column) + " = " + StringKit.toCamelCaseName(column) + "; \n");
+            setMethodBuilder.append("        this.addCalPrefix( \""+ StringKit.toCamelCaseName(column)+"\",calculate)"+";\n");
+            setMethodBuilder.append("    }\n\n");
+        }
+        return (this);
+    }
+
     private ModelBuilder createGetMethod(Object type, String column){
         setMethodBuilder.append("    public "+type+" "+"get");
         setMethodBuilder.append(StringKit.firstCharToUpperCase(StringKit.toCamelCaseName(column))+"() { \n");
@@ -84,7 +90,7 @@ public class ModelBuilder {
     }
     public String  doBuild(TableMeta tableMeta,String packageName){
         createPackage(packageName);
-        createImport("com.iih5.smartorm.model.Model");
+        createImport("com.iih5.com.iih5.smartorm.model.Model");
         String className = StringKit.firstCharToUpperCase(StringKit.toModelNameByTable(tableMeta.name)+"Model") ;
         createClass(className);
         createConstruct(className,tableMeta.name);
@@ -99,6 +105,7 @@ public class ModelBuilder {
             }
             createColumn(javaType,columnMeta.name,columnMeta.comment);
             createSetMethod(javaType,columnMeta.name);
+            createSetCalculateMethod(javaType,columnMeta.name);
             createGetMethod(javaType,columnMeta.name);
         }
         join();

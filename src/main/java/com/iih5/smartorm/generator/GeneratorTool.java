@@ -58,6 +58,24 @@ public class GeneratorTool {
         }
         generator(modelPackageName,relativelyPath);
     }
+
+    /**
+     *
+     * @param modelPackageName 包路径名
+     * @param module 模块名
+     * @param projectType 开发工具类型。ProjectType.ECLIPSE or ProjectType.IDEA
+     * @throws Exception
+     */
+    public static  void  generatorForJV(String modelPackageName,String module,int projectType) throws Exception {
+        String relativelyPath=System.getProperty("user.dir");
+        if (projectType==1){
+            relativelyPath = relativelyPath+"/"+module+"/src/main/java";
+        }else {
+            relativelyPath = relativelyPath+"/"+module +"/src";
+        }
+        generator(modelPackageName,relativelyPath);
+    }
+
     private static void build(TableMeta tableMeta, String modelPackageName, String javaOutputDir)throws Exception {
         StringBuffer absoluteDir= new StringBuffer();
         absoluteDir.append(javaOutputDir);

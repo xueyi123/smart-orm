@@ -16,15 +16,14 @@ package com.iih5.smartorm.cache;/*
 
 import com.iih5.smartorm.kit.SpringKit;
 import redis.clients.jedis.*;
-import redis.clients.jedis.exceptions.JedisDataException;
-import redis.clients.jedis.exceptions.JedisException;
 import redis.clients.jedis.params.geo.GeoRadiusParam;
 import redis.clients.jedis.params.sortedset.ZAddParams;
 import redis.clients.jedis.params.sortedset.ZIncrByParams;
-import redis.clients.util.JedisByteHashMap;
-import redis.clients.util.SafeEncoder;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class RedisExecutor {
     private static Map<String, RedisExecutor> map = new HashMap<String, RedisExecutor>();
@@ -50,7 +49,7 @@ public class RedisExecutor {
      */
     public static RedisExecutor use() {
         if (defaultJedisPool==null){
-            String[] dbs = SpringKit.getApplicationContext().getBeanNamesForType(redis.clients.jedis.JedisPool.class);
+            String[] dbs = SpringKit.getApplicationContext().getBeanNamesForType(JedisPool.class);
             defaultJedisPool = dbs[0];
         }
         RedisExecutor executor =map.get(defaultJedisPool);

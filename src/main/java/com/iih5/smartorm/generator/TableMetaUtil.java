@@ -1,6 +1,8 @@
 package com.iih5.smartorm.generator;
 
-import com.iih5.smartorm.model.Db;
+import com.iih5.smartorm.model.DB;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -9,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 public class TableMetaUtil {
-
+    static Logger logger = LoggerFactory.getLogger(TableMetaUtil.class);
     /**
      * 从db获取库表和字段信息
      * @param dataSource
@@ -20,9 +22,9 @@ public class TableMetaUtil {
         List<TableMeta> tableList = new ArrayList<TableMeta>();
         List<String> sets = null;
         if (dataSource !=null){
-            sets = Db.use(dataSource).findList("show tables ;",new Object[]{} ,String.class);
+            sets = DB.use(dataSource).findList("show tables ;",new Object[]{} ,String.class);
         }else {
-            sets =  Db.findList("show tables ;",new Object[]{} ,String.class);
+            sets =  DB.findList("show tables ;",new Object[]{} ,String.class);
         }
 
         for (String name:sets) {
@@ -30,7 +32,7 @@ public class TableMetaUtil {
             TableMeta meta = new TableMeta();
             meta.name = name;
             Map<String,String> javaTypeMap = toJavaTypeMap(name);
-            List<Map<String,Object>> mpList = Db.use(dataSource).findList(sql,new Object[]{});
+            List<Map<String,Object>> mpList = DB.use(dataSource).findList(sql,new Object[]{});
             for (Map<String,Object> mp:mpList) {
                 ColumnMeta columnMeta= new ColumnMeta();
                 columnMeta.name = (String) mp.get("Field");
@@ -54,7 +56,7 @@ public class TableMetaUtil {
         try {
             Map<String,String> javaType = new HashMap<String, String>();
             String sql="select * from "+tableName+" where 1=2 ";
-            connection = Db.getJdbcTemplate().getDataSource().getConnection();
+            connection = DB.getJdbcTemplate().getDataSource().getConnection();
             stm =  connection.createStatement();
             rs = stm.executeQuery(sql);
             ResultSetMetaData rmd = rs.getMetaData();
@@ -63,13 +65,14 @@ public class TableMetaUtil {
             }
             return javaType;
         }catch (Exception e){
-            e.printStackTrace();
+            logger.error("异常",e);
         }finally {
             try {
                 connection.close();
                 rs.close();
                 stm.close();
             } catch (SQLException e) {
+                logger.error("异常",e);
             }
         }
         return null;

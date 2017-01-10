@@ -2,6 +2,8 @@ package com.iih5.smartorm.model;
 
 import com.iih5.smartorm.kit.SpringKit;
 import com.iih5.smartorm.kit.StringKit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -18,6 +20,7 @@ import java.util.*;
  * DbExecutor. Professional database query and update tool.
  */
 public class DbExecutor {
+    Logger logger = LoggerFactory.getLogger(DbExecutor.class);
     private static Map<String, DbExecutor> map = new HashMap<String, DbExecutor>();
     private static String defaultDataSource = null;
     public JdbcTemplate jdbc = null;
@@ -115,7 +118,7 @@ public class DbExecutor {
                     }
                     return (T) mModel;
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    logger.error("异常",e);
                 }
                 return null;
             }
@@ -152,13 +155,13 @@ public class DbExecutor {
      *
      * @param sql    sql语句 参数用?代替
      * @param paras  参数
-     * @param claszz 返回对象
+     * @param clazz 返回对象
      * @param <T>    返回对象
      * @return
      * @
      */
-    public <T> T find(String sql, Object[] paras, Class<T> claszz) {
-        List<T> result = findList(sql, paras, claszz);
+    public <T> T find(String sql, Object[] paras, Class<T> clazz) {
+        List<T> result = findList(sql, paras, clazz);
         if (result.size() > 1) {
             throw new DataException("返回多于1条数据");
         }
