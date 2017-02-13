@@ -53,8 +53,9 @@ public class ModelBuilder {
         return (this);
     }
     private ModelBuilder createConstruct(String clas,String tableName){
+        constructBuilder.append("    public transient String TABLE = \""+tableName+"\";\n");
         constructBuilder.append("    public " + clas + "(){");
-        constructBuilder.append("\n       this.setTableName(\"" + tableName + "\");");
+        constructBuilder.append("\n       super.TABLE = this.TABLE;");
         constructBuilder.append("\n    }");
         return (this);
     }
@@ -90,7 +91,7 @@ public class ModelBuilder {
     }
     public String  doBuild(TableMeta tableMeta,String packageName){
         createPackage(packageName);
-        createImport("com.iih5.com.iih5.smartorm.model.Model");
+        createImport("com.iih5.smartorm.model.Model");
         String className = StringKit.firstCharToUpperCase(StringKit.toModelNameByTable(tableMeta.name)+"Model") ;
         createClass(className);
         createConstruct(className,tableMeta.name);

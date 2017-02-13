@@ -44,9 +44,12 @@ public class DB {
 
     public static TB model(Model model){
         TB executor = new TB();
-        executor.table=model.tableName();
+        executor.table=model.TABLE;
         executor.model=model;
         return executor;
+    }
+    public static TB model(){
+        return new TB();
     }
 
     /**

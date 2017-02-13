@@ -4,6 +4,7 @@ import com.iih5.smartorm.kit.SpringKit;
 import com.iih5.smartorm.kit.StringKit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContextException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -15,6 +16,7 @@ import java.lang.reflect.Method;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 /**
  * DbExecutor. Professional database query and update tool.
@@ -103,6 +105,7 @@ public class DbExecutor {
                     Field[] fields = mModel.getClass().getDeclaredFields();
                     if (fields.length > 0) {
                         for (Field field : fields) {
+                            if (field.getName().equals("TABLE")) continue;
                             String column = fieldMap.get(field.getName());
                             if (column == null) {
                                 column = StringKit.toUnderscoreName(field.getName());
@@ -119,8 +122,8 @@ public class DbExecutor {
                     return (T) mModel;
                 } catch (Exception e) {
                     logger.error("异常",e);
+                    throw new DataException(e.getMessage());
                 }
-                return null;
             }
         });
     }

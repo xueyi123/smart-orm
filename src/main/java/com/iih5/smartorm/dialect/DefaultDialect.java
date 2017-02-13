@@ -14,6 +14,9 @@ package com.iih5.smartorm.dialect;/*
  * under the License.
  */
 
+import com.iih5.smartorm.dialect.Dialect;
+import com.iih5.smartorm.dialect.MysqlDialect;
+
 public class DefaultDialect {
     static Dialect dialect= new MysqlDialect();
     public static Dialect getDialect(){

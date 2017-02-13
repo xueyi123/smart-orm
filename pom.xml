@@ -7,7 +7,7 @@
     <groupId>com.iih5</groupId>
     <artifactId>smart-orm</artifactId>
 
-    <version>3.0</version>
+    <version>3.1</version>
     <name>smart-orm</name>
     <description>这是一个ORM模型组件，可快速实现SQL操作,目前支持mysql,NoSQL库目前支持Redis</description>
     <url>http://www.iih5.com/</url>

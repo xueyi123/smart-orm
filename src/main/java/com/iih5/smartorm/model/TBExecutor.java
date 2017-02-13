@@ -96,14 +96,15 @@ public  abstract class TBExecutor<M extends TBExecutor> implements Serializable 
         order.append(" order by ").append(column).append(" ").append(sortType);
         return (M) this;
     }
-
-
     public Map<String, Object> getAttrs(){
         return attrs;
     }
     private void beanToAttrs() throws IntrospectionException, InvocationTargetException, IllegalAccessException {
         Field[] fields = model.getClass().getDeclaredFields();
         for (Field field : fields) {
+            if (field.getName().equals("TABLE")){
+                continue;
+            }
             PropertyDescriptor pd = new PropertyDescriptor(field.getName(),model.getClass());
             Method methodReader = pd.getReadMethod();
             Object value= methodReader.invoke(model);
@@ -124,6 +125,9 @@ public  abstract class TBExecutor<M extends TBExecutor> implements Serializable 
         boolean flag =true;
         Field[] fields = clazz.getDeclaredFields();
         for (Field field:fields){
+            if (field.getName().equals("TABLE")){
+                continue;
+            }
             String column = StringKit.toUnderscoreName(field.getName());
             if (flag){
                 flag=false;
@@ -153,7 +157,7 @@ public  abstract class TBExecutor<M extends TBExecutor> implements Serializable 
             }
         } catch (Exception e) {
             logger.error("插入异常",e);
-            return false;
+            throw new DataException(e.getMessage());
         }
     }
     /**
@@ -174,7 +178,7 @@ public  abstract class TBExecutor<M extends TBExecutor> implements Serializable 
      * @param conditionValues 参数比如：new Object[]{1000,'hill'};
      * @return true if delete succeed otherwise false
      */
-    public boolean delete(String conditions, Object[] conditionValues) {
+    public boolean deleteBy(String conditions, Object[] conditionValues) {
         if (conditionValues == null || conditionValues.length == 0) {
             return false;
         }
@@ -189,7 +193,7 @@ public  abstract class TBExecutor<M extends TBExecutor> implements Serializable 
      * @param conditions  操作条件，比如：conditions="userId=10000 and name='nick'"
      * @return
      */
-    public boolean delete(String conditions) {
+    public boolean deleteBy(String conditions) {
         StringBuilder sql = new StringBuilder();
         sql.append("delete from ");
         sql.append(table);
@@ -200,16 +204,15 @@ public  abstract class TBExecutor<M extends TBExecutor> implements Serializable 
         }
         return true;
     }
-
     /**
      * 根据条件删除数据
      * @param conditions 比如 title=${title} and sub_name=${subName} or book=${?}
      * @param params 可以是 map 或者 bean
      * @return
      */
-     public boolean delete(String conditions,Object params){
+     public boolean deleteBy(String conditions,Object params){
          String cdt = SqlXmlKit.autoAssembleSQL(conditions,params);
-         return delete(cdt);
+         return deleteById(cdt);
      }
     /**
      * 根据条件删除数据
@@ -247,13 +250,13 @@ public  abstract class TBExecutor<M extends TBExecutor> implements Serializable 
         }
         return true;
     }
-    public boolean deleteByIds(List list,String listColumn) {
+    public boolean deleteByIds(List list,String idColumn) {
         String st1=list.toString();
         String arr = st1.substring(st1.indexOf("[")+1,st1.indexOf("]"));
         StringBuilder sql = new StringBuilder();
         sql.append("delete from ");
         sql.append(table);
-        sql.append(" where "+listColumn+" in ");
+        sql.append(" where "+idColumn+" in ");
         sql.append("(");
         sql.append(arr);
         sql.append(")");
@@ -262,7 +265,6 @@ public  abstract class TBExecutor<M extends TBExecutor> implements Serializable 
         }
         return true;
     }
-
     /**
      * 根据条件修改数据
      *
@@ -275,7 +277,7 @@ public  abstract class TBExecutor<M extends TBExecutor> implements Serializable 
            beanToAttrs();
         } catch (Exception e) {
             logger.error("解析出错",e);
-            return false;
+            throw new DataException(e.getMessage());
         }
         if (getModifyFlag().isEmpty()) {
             return false;
@@ -288,7 +290,6 @@ public  abstract class TBExecutor<M extends TBExecutor> implements Serializable 
             return true;
         }
     }
-
     /**
      * 根据条件更新
      * @param conditions
@@ -297,7 +298,6 @@ public  abstract class TBExecutor<M extends TBExecutor> implements Serializable 
     public boolean updateBy(String conditions){
        return updateBy(conditions,new Object[]{});
     }
-
     /**
      * 根据条件更新
      * @param conditions 比如 title=${title} and sub_name=${subName} or book=${?}
@@ -308,7 +308,6 @@ public  abstract class TBExecutor<M extends TBExecutor> implements Serializable 
         String cdt = SqlXmlKit.autoAssembleSQL(conditions,params);
         return updateBy(cdt);
     }
-
     /**
      * 根据条件更新
      * @param id 根据ID
@@ -317,7 +316,6 @@ public  abstract class TBExecutor<M extends TBExecutor> implements Serializable 
     public boolean updateById(Object id){
         return updateBy("id=?",new Object[]{id});
     }
-
     /**
      * 替换，如果没有这直接插入，否则替换
      * @param condition
@@ -333,7 +331,6 @@ public  abstract class TBExecutor<M extends TBExecutor> implements Serializable 
         }
         return rt;
     }
-
     /**
      * 替换，如果没有这直接插入，否则替换
      * @param condition
@@ -342,8 +339,6 @@ public  abstract class TBExecutor<M extends TBExecutor> implements Serializable 
     public boolean replaceBy(String condition){
         return replaceBy(condition,new Object[]{});
     }
-
-
     /**
      * 替换，如果没有这直接插入，否则替换
      * @param conditions 比如 title=${title} and sub_name=${subName} or book=${?}
@@ -354,7 +349,6 @@ public  abstract class TBExecutor<M extends TBExecutor> implements Serializable 
         String cdt = SqlXmlKit.autoAssembleSQL(conditions,params);
         return replaceBy(cdt);
     }
-
     /**
      * 替换，如果没有这直接插入，否则替换
      * @param id
@@ -378,7 +372,6 @@ public  abstract class TBExecutor<M extends TBExecutor> implements Serializable 
         }
         return tId;
     }
-
     /**
      * @param columns        字段名称，比如 columns="id,name,age"
      * @param conditions     conditions 查询条件，比如 conditions="user_id=? and age=?"
@@ -442,6 +435,7 @@ public  abstract class TBExecutor<M extends TBExecutor> implements Serializable 
      * @
      */
     protected  <T> List<T> queryList(String columns, String conditions, Object[] conditionParas, final Class<T> clazz)  {
+        this.table = toTable(clazz);
         String sql = DefaultDialect.getDialect().forModelFindBy(table, columns, conditions);
         if (order.length()>0){
             sql = sql+" "+order.toString();
@@ -464,6 +458,9 @@ public  abstract class TBExecutor<M extends TBExecutor> implements Serializable 
                     Field[] fields = mModel.getClass().getDeclaredFields();
                     if (fields.length > 0) {
                         for (Field field:fields) {
+                            if (field.getName().equals("TABLE")){
+                                continue;
+                            }
                             String column = fieldMap.get(field.getName());
                             if (column == null){
                                 column = StringKit.toUnderscoreName(field.getName());
@@ -489,32 +486,10 @@ public  abstract class TBExecutor<M extends TBExecutor> implements Serializable 
                     return (T) mModel;
                 } catch (Exception e) {
                     logger.error("查询异常",e);
+                    throw new DataException(e.getMessage());
                 }
-                return null;
             }
         });
-    }
-    public <T> List<T> queryForList(String column, String conditions, Object[] conditionParas,Class<T> clazz){
-        String sql = DefaultDialect.getDialect().forModelFindBy(table, column, " and "+conditions);
-        if (order.length()>0){
-            sql = sql+" "+order.toString();
-        }
-        if (limit.length()>0){
-            sql = sql+" "+limit.toString();
-        }
-        if (!StringKit.isBaseDataType(clazz)){
-            throw new DataException("类型不符合，只能使用基本类型");
-        }
-        return jdbc.queryForList(sql,conditionParas,clazz);
-    }
-    public <T> T queryForObject(String column, String conditions, Object[] conditionParas,Class<T> clazz){
-        List<T> list = queryForList(column,conditions,conditionParas,clazz);
-        if (list.size()==1){
-            return  list.get(0);
-        }else if (list.size()==0){
-            return null;
-        }
-        throw new DataException("不止1条数据");
     }
     /**
      * 查找Model对象列表
@@ -548,9 +523,11 @@ public  abstract class TBExecutor<M extends TBExecutor> implements Serializable 
     public <T> List<T> findListBy(String conditions,Class<T> clazz)  {
         return findListBy(conditions, NULL_PARA_ARRAY,clazz);
     }
-
-
-
+    public <T> List<T> findListByIds(String idColumn,Collection<Long> list,Class<T> clazz){
+        Map<String,Object> map = new HashMap<String,Object>();
+        map.put("list",list);
+        return  findListBy(idColumn+" in(${list})",map,clazz);
+    }
     /**
      * 查找对象列表
      * @param conditions conditions 比如 title=${title} and sub_name=${subName} or book=${?}
@@ -582,8 +559,16 @@ public  abstract class TBExecutor<M extends TBExecutor> implements Serializable 
         String sql = "select count(*) from "+table+" where 1=1 and "+cdt;
         return jdbc.queryForObject(sql, NULL_PARA_ARRAY, Long.class);
     }
-
-
+    private  <T> String toTable(Class<T> clazz){
+        try{
+            Object gg = clazz.newInstance();
+            Field fs = gg.getClass().getDeclaredField("TABLE");
+           return (String)fs.get(gg);//得到此属性的值
+        }catch (Exception e){
+            logger.error("异常",e);
+            throw new DataException(e.getMessage());
+        }
+    }
     /**
      * 分页查询
      * @param columns    字段名称，比如 columns="id,name,age"
@@ -593,6 +578,7 @@ public  abstract class TBExecutor<M extends TBExecutor> implements Serializable 
      * @ <T> T
      */
     public <T> Page<T>  paginate(String columns, String conditions, Object[] paras,Class<T> clazz)  {
+        this.table = toTable(clazz);
         Long size = findListCountBy(conditions,paras);
         Long totalRow = size;
         if (totalRow == 0) {
@@ -608,7 +594,6 @@ public  abstract class TBExecutor<M extends TBExecutor> implements Serializable 
         List<T> list =findListBy(columns, conditions, paras,clazz);
         return new Page<T>(list, pageNumber, pageSize, totalPage, totalRow);
     }
-
     /**
      * 分页查询
      * @param conditions conditions="user_id=? and age=?"
@@ -619,7 +604,6 @@ public  abstract class TBExecutor<M extends TBExecutor> implements Serializable 
         String columns = beanToColumns(clazz);
         return  paginate(columns,conditions,paras,clazz);
     }
-
     /**
      * 分页查询
      * @param conditions conditions 比如 title=${title} and sub_name=${subName} or book=${?}
@@ -627,6 +611,7 @@ public  abstract class TBExecutor<M extends TBExecutor> implements Serializable 
      * @return
      */
     public <T> Page<T> paginate(String conditions,Object params,Class<T> clazz)  {
+        this.table = toTable(clazz);
         Long size = findListCountBy(conditions,params);
         Long totalRow = size;
         if (totalRow == 0) {

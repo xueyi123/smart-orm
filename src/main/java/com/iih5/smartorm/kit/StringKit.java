@@ -232,17 +232,17 @@ public class StringKit {
         try {
             return
                     (
-                            clazz.equals(String.class) ||
-                            clazz.equals(Integer.class) ||
-                            clazz.equals(Byte.class) ||
-                            clazz.equals(Long.class) ||
-                            clazz.equals(Double.class) ||
-                            clazz.equals(Float.class) ||
-                            clazz.equals(Character.class) ||
-                            clazz.equals(Short.class) ||
-                            clazz.equals(BigDecimal.class) ||
-                            clazz.equals(BigInteger.class) ||
-                            clazz.equals(Boolean.class) ||
+                            clazz.equals(java.lang.String.class) ||
+                            clazz.equals(java.lang.Integer.class) ||
+                            clazz.equals(java.lang.Byte.class) ||
+                            clazz.equals(java.lang.Long.class) ||
+                            clazz.equals(java.lang.Double.class) ||
+                            clazz.equals(java.lang.Float.class) ||
+                            clazz.equals(java.lang.Character.class) ||
+                            clazz.equals(java.lang.Short.class) ||
+                            clazz.equals(java.math.BigDecimal.class) ||
+                            clazz.equals(java.math.BigInteger.class) ||
+                            clazz.equals(java.lang.Boolean.class) ||
                             clazz.equals(java.sql.Date.class) ||
                                     clazz.isPrimitive()
                     );

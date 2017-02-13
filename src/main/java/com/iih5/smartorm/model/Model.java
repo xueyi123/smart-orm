@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Model {
-    private String table;//表名
+    public transient String TABLE;//表名
     private Map<String,String> map = new HashMap<String, String>();
     //设置+ 或- 或 * 或 /
     public String calPrefix(String para){
@@ -18,10 +18,6 @@ public class Model {
     public Map<String,String> findMap(){
         return map;
     }
-    public void setTableName(String table){
-       this.table = table;
-   }
-    public String tableName(){
-        return table;
-    }
+
+    
 }

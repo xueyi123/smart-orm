@@ -1,6 +1,7 @@
 package com.iih5.smartorm.kit;
 
 import com.alibaba.fastjson.JSON;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
@@ -11,13 +12,15 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 
+import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
+import java.io.*;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigInteger;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.net.URL;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -138,7 +141,7 @@ public class SqlXmlKit {
             } else if (d instanceof Long || d instanceof Double || d instanceof Integer || d instanceof Float || d instanceof BigInteger) {
                 matcher.appendReplacement(sb, String.valueOf(d));
             } else {
-                if (d instanceof List) {
+                if (d instanceof Collection || d instanceof List || d instanceof  Set) {
                     String st1 = JSON.toJSONString(d);
                     String dd = st1.substring(st1.indexOf("[") + 1, st1.indexOf("]"));
                     matcher.appendReplacement(sb, dd);
